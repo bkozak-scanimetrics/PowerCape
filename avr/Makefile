@@ -11,7 +11,7 @@ DEFS           = -I. -DF_CPU=$(CPUCLK) -DDAY=$(DAY) -DMONTH=$(MONTH) -DYEAR=$(YE
 LIBS           =
 
 # Override is only needed by avr-lib build system.
-CFLAGS         = -g -Wall $(OPTIMIZE) -mmcu=$(TARGET) $(DEFS)
+CFLAGS         = -std=c99 -g -Wall $(OPTIMIZE) -mmcu=$(TARGET) $(DEFS)
 LDFLAGS        = -Wl,-Map,$(PRG).map
 
 CC             = avr-gcc
@@ -31,7 +31,7 @@ fuses:
 # External crystal oscillator, max start-up time
 #	$(ISP_PROG) $(ISP_FLAGS) -P $(ISP_PORT) -U hfuse:w:0xD9:m -U lfuse:w:0xF7:m
 # Part defaults (Internal RC osc at 1MHz)
-#	$(ISP_PROG) $(ISP_FLAGS) -P $(ISP_PORT) -U hfuse:w:0xD9:m -U lfuse:w:0x62:m 
+#	$(ISP_PROG) $(ISP_FLAGS) -P $(ISP_PORT) -U hfuse:w:0xD9:m -U lfuse:w:0x62:m
 #	$(ISP_PROG) $(ISP_FLAGS) -P $(ISP_PORT) -U hfuse:w:0xD1:m -U lfuse:w:0x62:m -U efuse:w:0x07:m
 # Internal RC osc at 8MHz
 #	$(ISP_PROG) $(ISP_FLAGS) -P $(ISP_PORT) -U hfuse:w:0xDF:m -U lfuse:w:0xE2:m
@@ -84,6 +84,6 @@ esrec: $(PRG)_eeprom.srec
 	|| { echo empty $@ not generated; exit 0; }
 
 clean:
-	rm -rf *.o $(PRG).elf *.eps *.png *.pdf *.bak 
+	rm -rf *.o $(PRG).elf *.eps *.png *.pdf *.bak
 	rm -rf *.lst *.map *.hex *.srec *.bin $(EXTRA_CLEAN_FILES)
 

@@ -15,25 +15,25 @@ extern volatile uint8_t activity_watchdog;
 static uint8_t registers[ NUM_REGISTERS ];
 
 // Internal interface
-inline void registers_set_mask( uint8_t index, uint8_t mask )
+void registers_set_mask( uint8_t index, uint8_t mask )
 {
     registers[ index ] |= mask;
 }
 
 
-inline void registers_clear_mask( uint8_t index, uint8_t mask )
+void registers_clear_mask( uint8_t index, uint8_t mask )
 {
     registers[ index ] &= ~mask;
 }
 
 
-inline uint8_t registers_get( uint8_t index )
+uint8_t registers_get( uint8_t index )
 {
     return registers[ index ];
 }
 
 
-inline void registers_set( uint8_t index, uint8_t value )
+void registers_set( uint8_t index, uint8_t value )
 {
     registers[ index ] = value;
 }
@@ -46,7 +46,7 @@ uint8_t registers_host_read( uint8_t index )
     {
         activity_watchdog = 0;
     }
-    
+
     switch ( index )
     {
         case REG_STATUS:
@@ -71,7 +71,7 @@ uint8_t registers_host_read( uint8_t index )
             {
                 registers[ REG_STATUS ] |= STATUS_OPTO;
             }
-                
+
             break;
         }
         case REG_SECONDS_0:
@@ -95,7 +95,7 @@ uint8_t registers_host_read( uint8_t index )
             break;
         }
     }
-    
+
     return registers[ index ];
 }
 
@@ -114,7 +114,7 @@ void registers_host_write( uint8_t index, uint8_t data )
             OSCCAL = data;
             break;
         }
-        
+
         case REG_CONTROL:
         {
             if ( data & CONTROL_CE )
@@ -125,7 +125,7 @@ void registers_host_write( uint8_t index, uint8_t data )
             {
                 board_ce( 0 );
             }
-            
+
             if ( data & CONTROL_LED0 )
             {
                 board_led_on( 0 );
@@ -143,20 +143,20 @@ void registers_host_write( uint8_t index, uint8_t data )
             {
                 board_led_off( 1 );
             }
-            
+
             if ( data & CONTROL_BOOTLOAD )
             {
                 rebootflag = 1;
             }
-            
+
             break;
         }
-        
+
         case REG_RESTART_HOURS:
         case REG_RESTART_MINUTES:
         case REG_RESTART_SECONDS:
         {
-            registers[ index ] = data;    
+            registers[ index ] = data;
             registers_set_mask( REG_START_ENABLE, START_TIMEOUT );
             return;
         }
@@ -166,17 +166,17 @@ void registers_host_write( uint8_t index, uint8_t data )
         case REG_SECONDS_2:
         case REG_SECONDS_3:
         {
-            registers[ index ] = data;    
+            registers[ index ] = data;
             seconds = *(uint32_t*)&registers[ REG_SECONDS_0 ];
             return;
         }
-        
+
         case REG_EXTENDED:
         {
             // Don't let this register change
             return;
         }
-        
+
         case REG_I2C_ADDRESS:
         {
             // TODO: qualify address
@@ -200,21 +200,21 @@ void registers_host_write( uint8_t index, uint8_t data )
             eeprom_update_byte( EEPROM_CHG_TIMER, data );    // TODO: interrupt context
             break;
         }
-        
+
         default:
         {
             break;
         }
     }
-    
-    registers[ index ] = data;    
+
+    registers[ index ] = data;
 }
 
 
 void registers_init( void )
 {
     uint8_t t;
-    
+
     registers[ REG_CONTROL ]         = CONTROL_CE;
     registers[ REG_START_ENABLE ]    = START_ALL;
     registers[ REG_RESTART_HOURS ]   = 0;
@@ -225,14 +225,14 @@ void registers_init( void )
     registers[ REG_BOARD_TYPE ]      = eeprom_get_board_type();
     registers[ REG_BOARD_REV ]       = eeprom_get_revision_value();
     registers[ REG_BOARD_STEP ]      = eeprom_get_stepping_value();
-    
+
     t = eeprom_get_i2c_address();
     if ( t == 0xFF )
     {
         t = TWI_SLAVE_ADDRESS;
     }
     registers[ REG_I2C_ADDRESS ]     = t;
-    
+
     t = eeprom_get_charge_current();
     if ( t == 0xFF )
     {

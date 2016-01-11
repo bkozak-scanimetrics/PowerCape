@@ -12,7 +12,7 @@
 #define SDA_LOW     DDRD |= PIN_BB_SDA
 #define SDA_HIGH    DDRD &= ~PIN_BB_SDA
 
-#define NOP         asm volatile( "nop\n\t" )
+#define NOP         __asm__ volatile( "nop\n\t" )
 
 
 static inline void delay_loop( void )
@@ -43,7 +43,7 @@ void bb_i2c_init( void )
     // Set pins to tri-state
     DDRD &= ~PIN_BB_SCL;
     DDRD &= ~PIN_BB_SDA;
-    
+
     // Pre-set output to low (this also disables the internal pull-up)
     PORTD &= ~PIN_BB_SCL;
     PORTD &= ~PIN_BB_SDA;
@@ -55,7 +55,7 @@ void bb_start( void )
     // Idle bus == both lines high
     SDA_LOW;
     delay_loop();
-    SCL_LOW;    
+    SCL_LOW;
 }
 
 
@@ -65,14 +65,14 @@ void bb_stop( void )
     delay_loop();
     SCL_HIGH;
     delay_loop();
-    SDA_HIGH;    
+    SDA_HIGH;
 }
 
 
 void bb_out( uint8_t b )
 {
     uint8_t i;
-    
+
     for ( i = 0; i < 8; i++ )
     {
         if ( b & 0x80 )
@@ -96,7 +96,7 @@ void bb_out( uint8_t b )
 uint8_t bb_in( void )
 {
     uint8_t i, b = 0;
-    
+
     SCL_LOW;
     for ( i = 0; i < 8; i++ )
     {
@@ -122,14 +122,14 @@ uint8_t bb_in( void )
 uint8_t get_ack( void )
 {
     uint8_t i;
-    
+
     SDA_HIGH;
     SCL_HIGH;
     delay_loop2();
     i = ~( PIND & PIN_BB_SDA );
     delay_loop2();
     SCL_LOW;
-    
+
     return i;
 }
 
@@ -160,7 +160,7 @@ void send_nak( void )
 uint8_t bb_i2c_read( uint8_t addr, uint8_t *buf, uint8_t len )
 {
     uint8_t rc = 0;
-    
+
     bb_start();
 
     bb_out( addr | 0x01 ); // address + R
@@ -169,7 +169,7 @@ uint8_t bb_i2c_read( uint8_t addr, uint8_t *buf, uint8_t len )
         while ( len > 0 )
         {
             *buf++ = bb_in();
-                
+
             len--;
             if ( len > 0 )
             {
@@ -185,9 +185,9 @@ uint8_t bb_i2c_read( uint8_t addr, uint8_t *buf, uint8_t len )
     {
         rc = 1;
     }
-    
+
     bb_stop();
-    
+
     return rc;
 }
 
@@ -197,24 +197,24 @@ uint8_t bb_i2c_write( uint8_t addr, uint8_t *buf, uint8_t len )
     uint8_t rc = 0;
 
     bb_start();
-    
+
     bb_out( addr );    // address + W
     if ( get_ack() )
     {
         while ( len > 0 )
         {
             bb_out( *buf++ );
-            
+
             if ( get_ack() == 0 )
             {
                 rc = 1;
                 break;
             }
-            
+
             len--;
         }
     }
-    else 
+    else
     {
         rc = 1;
     }

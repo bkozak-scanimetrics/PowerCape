@@ -3,7 +3,7 @@
 
 // Port B
 #define PIN_LED1        ( 1 << PB0 )        // PCINT0
-#define PIN_LED0        ( 1 << PB1 )        // PCINT1 
+#define PIN_LED0        ( 1 << PB1 )        // PCINT1
 #define PIN_OPTO        ( 1 << PB2 )        // PCINT2
 #define PIN_PB3         ( 1 << PB3 )        // PCINT3
 #define PIN_PB4         ( 1 << PB4 )        // PCINT4

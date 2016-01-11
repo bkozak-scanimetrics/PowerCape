@@ -4,7 +4,7 @@
 enum registers_type {
     REG_MCUSR,                  // 0 - AVR register
     REG_OSCCAL,                 // 1 - AVR register
-    REG_STATUS,                 // 2 
+    REG_STATUS,                 // 2
     REG_CONTROL,                // 3
     REG_START_ENABLE,           // 4
     REG_START_REASON,           // 5
@@ -27,13 +27,13 @@ enum registers_type {
     REG_I2C_ADDRESS,            // 22   Slave address to use on I2C interface
     REG_I2C_ICHARGE,            // 23   Charge current (0-3)/3 amp
     REG_I2C_TCHARGE,            // 24   Charger timer in hours (3-10)
-    
+
     NUM_REGISTERS
 };
 
 
 // STATUS register bits
-#define STATUS_POWER_GOOD       0x01    // PG state 
+#define STATUS_POWER_GOOD       0x01    // PG state
 #define STATUS_BUTTON           0x02    // Button state
 #define STATUS_OPTO             0x04    // Opto state
 
@@ -62,15 +62,14 @@ enum registers_type {
 #define BOARD_TYPE_PI           0x01
 #define BOARD_TYPE_UNKNOWN      0xFF
 
-#if defined( __AVR__ )
 void registers_init( void );
-inline void registers_set_mask( uint8_t index, uint8_t mask );
-inline void registers_clear_mask( uint8_t index, uint8_t mask );
-inline uint8_t registers_get( uint8_t index );
-inline void registers_set( uint8_t idx, uint8_t data );
+void registers_set_mask( uint8_t index, uint8_t mask );
+void registers_clear_mask( uint8_t index, uint8_t mask );
+uint8_t registers_get( uint8_t index );
+void registers_set( uint8_t idx, uint8_t data );
 uint8_t registers_host_read( uint8_t idx );
 void registers_host_write( uint8_t idx, uint8_t data );
-#endif
+
 
 #endif  // __REGISTERS_H__
 

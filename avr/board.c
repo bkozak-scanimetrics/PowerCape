@@ -7,7 +7,6 @@
 #include "bb_i2c.h"
 #include "board.h"
 
-
 extern void power_down( void );
 extern void power_event( uint8_t reason );
 
@@ -21,7 +20,7 @@ uint8_t board_begin_countdown( void )
     countdown = (uint32_t)registers_get( REG_RESTART_HOURS ) * 3600;
     countdown += (uint32_t)registers_get( REG_RESTART_MINUTES ) * 60;
     countdown += (uint32_t)registers_get( REG_RESTART_SECONDS );
-    
+
     if ( countdown == 0 )
     {
         registers_clear_mask( REG_START_ENABLE, START_TIMEOUT );
@@ -34,9 +33,9 @@ uint8_t board_begin_countdown( void )
 void board_power_on( void )
 {
     PORTD |= PIN_D;
-    asm volatile( "nop\n\t" );
+    __asm__ volatile( "nop\n\t" );
     PORTD |= PIN_CP;
-    asm volatile( "nop\n\t" );
+    __asm__ volatile( "nop\n\t" );
     PORTD &= ~PIN_CP;
     PORTD &= ~PIN_D;
 #ifdef DEBUG
@@ -48,9 +47,9 @@ void board_power_on( void )
 void board_power_off( void )
 {
     PORTD &= ~PIN_D;
-    asm volatile( "nop\n\t" );
+    __asm__ volatile( "nop\n\t" );
     PORTD |= PIN_CP;
-    asm volatile( "nop\n\t" );
+    __asm__ volatile( "nop\n\t" );
     PORTD &= ~PIN_CP;
 #ifdef DEBUG
     board_led_off( 1 );
@@ -125,7 +124,7 @@ void board_release_reset( void )
 uint8_t board_pgood( void )
 {
     uint8_t rc = 0;
-    
+
     if ( PINC & PIN_PGOOD )
     {
         registers_clear_mask( REG_STATUS, STATUS_POWER_GOOD );
@@ -135,7 +134,7 @@ uint8_t board_pgood( void )
         registers_set_mask( REG_STATUS, STATUS_POWER_GOOD );
         rc = 1;
     }
-    
+
     return rc;
 }
 
@@ -144,7 +143,7 @@ void board_enable_pgood_irq( void )
 {
     // Enable PGOOD interrupt
     PCMSK1 |= ( PIN_PGOOD );
-    PCICR  |= ( 1 << PCIE1 );    
+    PCICR  |= ( 1 << PCIE1 );
 }
 
 
@@ -183,13 +182,13 @@ void board_disable_interrupt( uint8_t mask )
 void board_set_charge_current( uint8_t thirds )
 {
     uint8_t pins;
-    
+
     if ( ( registers_get( REG_BOARD_REV ) == 'A' ) &&
          ( registers_get( REG_BOARD_STEP ) >= '2' ) )
-    {        
+    {
         DDRC &= ~( PIN_ISET2 | PIN_ISET3 );
         PORTC &= ~( PIN_ISET2 | PIN_ISET3 );
-        
+
         switch ( thirds )
         {
             case 3:  pins = ( PIN_ISET2 | PIN_ISET3 ); break;
@@ -224,12 +223,12 @@ void board_set_charge_timer( uint8_t hours )
 
     if ( ( registers_get( REG_BOARD_REV ) == 'A' ) &&
          ( registers_get( REG_BOARD_STEP ) >= '2' ) )
-    {    
-        if ( hours > 10 ) 
+    {
+        if ( hours > 10 )
         {
             hours = 10;
         }
-        
+
         b = wiper_value[ hours - 3 ];
         if ( bb_i2c_write( MCP_ADDR, &b, 1 ) )
         {
@@ -242,18 +241,20 @@ void board_set_charge_timer( uint8_t hours )
 
 void board_gpio_config( void )
 {
-    // Enable pull-ups on input pins to keep unconnected 
+    // Enable pull-ups on input pins to keep unconnected
     // ones from floating
-    PORTB = ~( PIN_LED1 | PIN_LED0 | PIN_XTAL1 | PIN_XTAL2 );   // engage all PORTB pull-ups
+
+    // engage all PORTB pull-ups
+    PORTB = (uint8_t)(~(PIN_LED1 | PIN_LED0 | PIN_XTAL1 | PIN_XTAL2));
     DDRB  = ( PIN_LED1 | PIN_LED0 );
 
     PORTC  = ~( PIN_SDA | PIN_SCL | PIN_CE | PIN_ISET2 | PIN_ISET3 );
     DDRC   = PIN_ISET3;
 
-    PORTD = ~( PIN_CP | PIN_D | PIN_DETECT | PIN_BB_SCL | PIN_BB_SDA );
+    PORTD = (uint8_t)(~(PIN_CP | PIN_D | PIN_DETECT | PIN_BB_SCL | PIN_BB_SDA));
     DDRD  = ( PIN_CP | PIN_D );
-    
-    board_enable_pgood_irq();   
+
+    board_enable_pgood_irq();
 }
 
 
@@ -294,14 +295,14 @@ ISR( PCINT2_vect, ISR_BLOCK )
 ISR( TIMER2_OVF_vect, ISR_BLOCK )
 {
     static uint8_t button_hold_count = 0;
-    
+
     // Handle RTC
     system_ticks++;
 #ifdef DEBUG
     PORTB ^= PIN_LED0;
 #endif
     seconds++;
-    
+
     // Check for startup conditions
     if ( countdown != 0 )
     {
@@ -311,7 +312,7 @@ ISR( TIMER2_OVF_vect, ISR_BLOCK )
             power_event( START_TIMEOUT );
         }
     }
-    
+
     // Forced power-off check
     if ( ( PIND & PIN_BUTTON ) == 0 )
     {
