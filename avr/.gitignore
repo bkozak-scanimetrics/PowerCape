@@ -8,4 +8,4 @@ cscope.out
 *.lst
 *.elf
 *.map
-
+*~
