@@ -147,7 +147,7 @@ void state_machine( void )
             }
             else
             {
-                power_state = STATE_POWER_DOWN;
+                power_state = STATE_POWER_UP;
             }
             break;
         }
