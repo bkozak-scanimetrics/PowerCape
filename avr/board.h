@@ -52,8 +52,8 @@ void timer1_init( void );
 
 uint8_t board_begin_countdown( void );
 
-void board_power_on( void );
-void board_power_off( void );
+void board_poweron( void );
+void board_poweroff( void );
 
 void board_led_on( uint8_t led );
 void board_led_off( uint8_t led );

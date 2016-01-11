@@ -2,6 +2,7 @@ PRG            = power
 TARGET         = atmega328p
 CPUCLK         = 8000000
 OBJ            = main.o board.o twi_slave.o bb_i2c.o registers.o eeprom.o
+OBJ           += board_power.o
 OPTIMIZE       = -Os
 DAY            = $(shell date +%d)
 MONTH          = $(shell date +%m)

@@ -6,9 +6,10 @@
 #include "registers.h"
 #include "bb_i2c.h"
 #include "board.h"
+#include "board_power.h"
 
-extern void power_down( void );
-extern void power_event( uint8_t reason );
+
+extern void board_power_event( uint8_t reason );
 
 volatile uint16_t system_ticks;
 volatile uint32_t countdown;
@@ -30,7 +31,7 @@ uint8_t board_begin_countdown( void )
 }
 
 
-void board_power_on( void )
+void board_poweron( void )
 {
     PORTD |= PIN_D;
     __asm__ volatile( "nop\n\t" );
@@ -44,7 +45,7 @@ void board_power_on( void )
 }
 
 
-void board_power_off( void )
+void board_poweroff( void )
 {
     PORTD &= ~PIN_D;
     __asm__ volatile( "nop\n\t" );
@@ -265,7 +266,7 @@ ISR( PCINT0_vect, ISR_BLOCK )
 
     if ( ( PINB & PIN_OPTO ) == 0 )
     {
-        power_event( START_EXTERNAL );
+        board_power_event( START_EXTERNAL );
     }
 }
 
@@ -287,7 +288,7 @@ ISR( PCINT2_vect, ISR_BLOCK )
     if ( ( PIND & PIN_BUTTON ) == 0 )
     {
         PCMSK2 &= ~PIN_BUTTON;
-        power_event( START_BUTTON );
+        board_power_event( START_BUTTON );
     }
 }
 
@@ -309,7 +310,7 @@ ISR( TIMER2_OVF_vect, ISR_BLOCK )
         countdown--;
         if ( countdown == 0 )
         {
-            power_event( START_TIMEOUT );
+            board_power_event( START_TIMEOUT );
         }
     }
 
@@ -319,7 +320,7 @@ ISR( TIMER2_OVF_vect, ISR_BLOCK )
         button_hold_count++;
         if ( button_hold_count == 5 )
         {
-            power_down();
+            board_power_req_powerdown();
         }
     }
     else
