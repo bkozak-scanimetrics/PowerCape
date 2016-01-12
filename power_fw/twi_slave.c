@@ -32,7 +32,7 @@ ISR( TWI_vect )
                 reg_index = 0;
             }
 
-            return;
+            break;
         }
 
         case 0x80:  // data RX
