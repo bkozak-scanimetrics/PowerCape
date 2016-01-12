@@ -9,3 +9,5 @@ cscope.out
 *.elf
 *.map
 *~
+
+power_fw/build
