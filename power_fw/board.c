@@ -9,26 +9,7 @@
 #include "board_power.h"
 #include "twi_slave.h"
 #include "board_watchdog.h"
-
-volatile uint16_t system_ticks;
-volatile uint32_t countdown;
-volatile uint32_t seconds;
-
-
-uint8_t board_begin_countdown( void )
-{
-    countdown = (uint32_t)registers_get( REG_RESTART_HOURS ) * 3600;
-    countdown += (uint32_t)registers_get( REG_RESTART_MINUTES ) * 60;
-    countdown += (uint32_t)registers_get( REG_RESTART_SECONDS );
-
-    if ( countdown == 0 )
-    {
-        registers_clear_mask( REG_START_ENABLE, START_TIMEOUT );
-        return 0;
-    }
-    return 1;
-}
-
+#include "sys_time.h"
 
 void board_poweron( void )
 {
@@ -280,7 +261,6 @@ ISR( PCINT1_vect, ISR_BLOCK )
     }
 }
 
-
 // Button
 ISR( PCINT2_vect, ISR_BLOCK )
 {
@@ -292,60 +272,12 @@ ISR( PCINT2_vect, ISR_BLOCK )
 }
 
 
-ISR( TIMER2_OVF_vect, ISR_BLOCK )
-{
-    static uint8_t button_hold_count = 0;
-
-    // Handle RTC
-    system_ticks++;
-#ifdef DEBUG
-    PORTB ^= PIN_LED0;
-#endif
-    seconds++;
-
-    // Check for startup conditions
-    if ( countdown != 0 )
-    {
-        countdown--;
-        if ( countdown == 0 )
-        {
-            board_power_event( START_TIMEOUT );
-        }
-    }
-
-    // Forced power-off check
-    if ( ( PIND & PIN_BUTTON ) == 0 )
-    {
-        button_hold_count++;
-        if ( button_hold_count == 5 )
-        {
-            board_power_req_powerdown();
-        }
-    }
-    else
-    {
-        button_hold_count = 0;
-    }
-}
-
-
-void timer2_init( void )
-{
-    PRR &= ~( 1 << PRTIM2 );    // is this necessary with async mode?
-    ASSR = ( 1 << AS2 );        // external crystal
-    TCCR2B = 0;
-    TCCR2A = 0;
-    TCNT2 = 0;
-    TCCR2B = ( 1 << CS22 ) | ( 1 << CS20 );    // clk/128 (1s)
-    TIMSK2 = ( 1 << TOIE2 );
-}
-
 
 void board_init( void )
 {
     board_gpio_config();
     PRR = ( ( 1 << PRTIM0 ) | ( 1 << PRTIM1 ) | ( 1 << PRSPI ) | ( 1 << PRUSART0 ) | ( 1 << PRADC ) );
-    timer2_init();
+    sys_time_init();
     bb_i2c_init();
 }
 
@@ -359,7 +291,7 @@ void board_preboot_setup(void)
 void board_off_setup(void)
 {
 	board_enable_interrupt( registers_get( REG_START_ENABLE ) );
-	board_begin_countdown();
+	sys_time_begin_countdown();
 	registers_clear_mask( REG_START_REASON, 0xFF );
 }
 

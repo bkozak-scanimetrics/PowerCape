@@ -2,17 +2,33 @@
 #include <avr/io.h>
 #include <avr/eeprom.h>
 #include <avr/interrupt.h>
+#include <string.h>
 #include "registers.h"
 #include "eeprom.h"
 #include "twi_slave.h"
 #include "board.h"
 #include "board_watchdog.h"
-
+#include "sys_time.h"
 
 extern volatile uint32_t seconds;
 extern volatile uint8_t rebootflag;
 
 static uint8_t registers[ NUM_REGISTERS ];
+
+static void read_time_registers(void)
+{
+	uint32_t seconds;
+
+	memcpy(&seconds, registers + REG_SECONDS_0, sizeof(seconds));
+	sys_time_set_time(seconds);
+}
+
+static void write_time_registers(void)
+{
+    uint32_t seconds = sys_time_get_time();
+
+    memcpy(registers + REG_SECONDS_0, &seconds, sizeof(seconds));
+}
 
 // Internal interface
 void registers_set_mask( uint8_t index, uint8_t mask )
@@ -72,25 +88,8 @@ uint8_t registers_host_read( uint8_t index )
             break;
         }
         case REG_SECONDS_0:
-        {
-            registers[ REG_SECONDS_0 ] = ( uint8_t )( seconds & 0xFF );
+            write_time_registers();
             break;
-        }
-        case REG_SECONDS_1:
-        {
-            registers[ REG_SECONDS_1 ] = ( uint8_t )( ( seconds & 0xFF00 ) >> 8 );
-            break;
-        }
-        case REG_SECONDS_2:
-        {
-            registers[ REG_SECONDS_2 ] = ( uint8_t )( ( seconds & 0xFF0000 ) >> 16 );
-            break;
-        }
-        case REG_SECONDS_3:
-        {
-            registers[ REG_SECONDS_3 ] = ( uint8_t )( ( seconds & 0xFF000000 ) >> 24 );
-            break;
-        }
     }
 
     return registers[ index ];
@@ -155,13 +154,10 @@ void registers_host_write( uint8_t index, uint8_t data )
             return;
         }
 
-        case REG_SECONDS_0:
-        case REG_SECONDS_1:
-        case REG_SECONDS_2:
         case REG_SECONDS_3:
         {
-            registers[ index ] = data;
-            seconds = *(uint32_t*)&registers[ REG_SECONDS_0 ];
+            registers[index] = data;
+            read_time_registers();
             return;
         }
 

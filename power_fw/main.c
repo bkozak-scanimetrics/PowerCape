@@ -15,7 +15,7 @@
 #include "bb_i2c.h"
 #include "board_power.h"
 #include "board_watchdog.h"
-
+#include "sys_time.h"
 
 extern volatile uint16_t system_ticks;
 volatile uint8_t rebootflag = 0;
@@ -45,6 +45,7 @@ int main( void )
 {
     uint8_t oscval;
     uint16_t last_tick = 0;
+    uint32_t system_ticks;
 
     // Make sure DIV8 is not selected
     if ( CLKPR != 0 )    // Div1
@@ -78,10 +79,11 @@ int main( void )
     // Main loop
     while ( 1 )
     {
+        system_ticks = sys_time_get_ticks();
         wdt_reset();
 
         // System ticks are seconds
-        if ( last_tick != system_ticks )
+        if ( last_tick != system_ticks)
         {
             last_tick = system_ticks;
 
