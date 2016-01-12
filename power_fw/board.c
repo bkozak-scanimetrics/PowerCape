@@ -359,6 +359,13 @@ void board_preboot_setup(void)
     board_watchdog_boot_setup();
 }
 
+void board_off_setup(void)
+{
+	board_enable_interrupt( registers_get( REG_START_ENABLE ) );
+	board_begin_countdown();
+	registers_clear_mask( REG_START_REASON, 0xFF );
+}
+
 void board_stop( void )
 {
     TCCR2B = 0;

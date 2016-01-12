@@ -27,7 +27,7 @@
 ******************************************************************************/
 enum power_state_type {
     STATE_INIT,
-    STATE_CLEAR_MASK,
+    STATE_SETUP_OFF,
     STATE_OFF_NO_PGOOD,
     STATE_OFF_WITH_PGOOD,
     STATE_POWER_UP,
@@ -86,16 +86,16 @@ static void state_machine(void)
         }
         break;
 
-    case STATE_CLEAR_MASK:
-        board_enable_interrupt( registers_get( REG_START_ENABLE ) );
-        board_begin_countdown();
+    case STATE_SETUP_OFF:
+
+        board_off_setup();
 
         if ( board_pgood() ) {
             power_state = STATE_OFF_WITH_PGOOD;
         } else {
             power_state = STATE_OFF_NO_PGOOD;
         }
-        registers_clear_mask( REG_START_REASON, 0xFF );
+
         break;
 
     case STATE_OFF_NO_PGOOD:
@@ -143,7 +143,7 @@ static void state_machine(void)
     case STATE_POWER_DOWN:
         twi_slave_stop();
         board_poweroff();
-        power_state = STATE_CLEAR_MASK;
+        power_state = STATE_SETUP_OFF;
         break;
 
     case STATE_CYCLE_POWER:
