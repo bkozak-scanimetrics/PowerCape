@@ -17,6 +17,7 @@
 #include "board.h"
 #include "registers.h"
 #include "twi_slave.h"
+#include "board_watchdog.h"
 /******************************************************************************
 *                                   DEFINES                                   *
 ******************************************************************************/
@@ -40,10 +41,6 @@ enum power_state_type {
 ******************************************************************************/
 static volatile uint8_t power_state = STATE_INIT;
 static volatile uint8_t retries;
-
-/* TODO - the watchdog functionality should be in it's own file, at which
-   point, we shouldn't access it directly! */
-extern volatile uint8_t activity_watchdog;
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
@@ -131,7 +128,8 @@ static void state_machine(void)
             power_state = STATE_ON;
             twi_slave_init();
             board_disable_interrupt( START_ALL );
-            activity_watchdog = registers_get( REG_WDT_START );
+            board_watchdog_activity_start();
+
         } else {
             board_poweroff();
             if ( retries > 0 ) {

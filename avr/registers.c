@@ -6,11 +6,11 @@
 #include "eeprom.h"
 #include "twi_slave.h"
 #include "board.h"
+#include "board_watchdog.h"
 
 
 extern volatile uint32_t seconds;
 extern volatile uint8_t rebootflag;
-extern volatile uint8_t activity_watchdog;
 
 static uint8_t registers[ NUM_REGISTERS ];
 
@@ -42,10 +42,7 @@ void registers_set( uint8_t index, uint8_t value )
 // Host interface
 uint8_t registers_host_read( uint8_t index )
 {
-    if ( activity_watchdog )
-    {
-        activity_watchdog = 0;
-    }
+    board_watchdog_activity_done();
 
     switch ( index )
     {
@@ -102,10 +99,7 @@ uint8_t registers_host_read( uint8_t index )
 
 void registers_host_write( uint8_t index, uint8_t data )
 {
-    if ( activity_watchdog )
-    {
-        activity_watchdog = 0;
-    }
+    board_watchdog_activity_done();
 
     switch ( index )
     {

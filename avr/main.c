@@ -14,11 +14,11 @@
 #include "twi_slave.h"
 #include "bb_i2c.h"
 #include "board_power.h"
+#include "board_watchdog.h"
 
 
 extern volatile uint16_t system_ticks;
 volatile uint8_t rebootflag = 0;
-volatile uint8_t activity_watchdog;
 
 uint8_t mcusr __attribute__ ((section (".noinit")));
 
@@ -28,70 +28,6 @@ void get_mcusr( void )
     mcusr = MCUSR;
     MCUSR = 0;
     wdt_enable( WDTO_2S );
-}
-uint8_t retries = 0;
-
-void watchdog_reset( void )
-{
-    // Make sure there is no start reason
-    registers_set( REG_START_REASON, 0 );
-    board_hold_reset();
-    _delay_ms( 250 );
-    board_release_reset();
-}
-
-
-void watchdog_check( void )
-{
-    uint8_t i;
-
-    // Check reset watchdog
-    i = registers_get( REG_WDT_RESET );
-    if ( i != 0 )
-    {
-        i -= 1;
-        registers_set( REG_WDT_RESET, i );
-        if ( i == 0 )
-        {
-            watchdog_reset();
-            registers_set( REG_WDT_POWER, 0 );
-            registers_set( REG_WDT_STOP, 0 );
-        }
-    }
-
-    // Check power-cycle watchdog
-    i = registers_get( REG_WDT_POWER );
-    if ( i != 0 )
-    {
-        i -= 1;
-        registers_set( REG_WDT_POWER, i );
-        if ( i == 0 )
-        {
-            board_power_req_cycle();
-        }
-    }
-
-    // Check power-down watchdog
-    i = registers_get( REG_WDT_STOP );
-    if ( i != 0 )
-    {
-        i -= 1;
-        registers_set( REG_WDT_STOP, i );
-        if ( i == 0 )
-        {
-            board_power_req_powerdown();
-        }
-    }
-
-    // Check start-up activity watchdog
-    if ( activity_watchdog != 0 )
-    {
-        activity_watchdog -= 1;
-        if ( activity_watchdog == 0 )
-        {
-            board_power_req_cycle();
-        }
-    }
 }
 
 // If requested, make sure CE is set. Can be disabled by ISR.
@@ -152,7 +88,7 @@ int main( void )
             board_power_sm();
             if (board_power_state_is_on())
             {
-                watchdog_check();
+                board_watchdog_check();
             } else if (board_power_state_is_off()) {
                 sleep_enable();
                 sleep_cpu();
