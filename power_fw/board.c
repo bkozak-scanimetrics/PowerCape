@@ -10,9 +10,6 @@
 #include "twi_slave.h"
 #include "board_watchdog.h"
 
-
-extern void board_power_event( uint8_t reason );
-
 volatile uint16_t system_ticks;
 volatile uint32_t countdown;
 volatile uint32_t seconds;
