@@ -42,7 +42,7 @@ void registers_set( uint8_t index, uint8_t value )
 // Host interface
 uint8_t registers_host_read( uint8_t index )
 {
-    board_watchdog_activity_done();
+    board_watchdog_activity();
 
     switch ( index )
     {
@@ -99,7 +99,7 @@ uint8_t registers_host_read( uint8_t index )
 
 void registers_host_write( uint8_t index, uint8_t data )
 {
-    board_watchdog_activity_done();
+    board_watchdog_activity();
 
     switch ( index )
     {

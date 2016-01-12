@@ -7,6 +7,8 @@
 #include "bb_i2c.h"
 #include "board.h"
 #include "board_power.h"
+#include "twi_slave.h"
+#include "board_watchdog.h"
 
 
 extern void board_power_event( uint8_t reason );
@@ -350,6 +352,12 @@ void board_init( void )
     bb_i2c_init();
 }
 
+void board_preboot_setup(void)
+{
+    twi_slave_init();
+    board_disable_interrupt( START_ALL );
+    board_watchdog_boot_setup();
+}
 
 void board_stop( void )
 {

@@ -39,7 +39,7 @@ static void watchdog_reset(void)
 /**
 * \brief call when activity from host has been detected
 **/
-void board_watchdog_activity_done(void)
+void board_watchdog_activity(void)
 {
     activity_watchdog = 0;
 }
@@ -47,8 +47,11 @@ void board_watchdog_activity_done(void)
 /**
 * \brief call to start the host activity watchdog
 **/
-void board_watchdog_activity_start(void)
+void board_watchdog_boot_setup(void)
 {
+    registers_set( REG_WDT_RESET, 0);
+    registers_set( REG_WDT_POWER, 0);
+    registers_set( REG_WDT_STOP, 0);
     activity_watchdog = registers_get(REG_WDT_START);
 }
 /*****************************************************************************/

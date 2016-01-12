@@ -9,8 +9,8 @@
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
-void board_watchdog_activity_done(void);
-void board_watchdog_activity_start(void);
+void board_watchdog_activity(void);
+void board_watchdog_boot_setup(void);
 void board_watchdog_check(void);
 /*****************************************************************************/
 #endif /* BOARD_WATCHDOG_H_ */

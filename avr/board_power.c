@@ -113,10 +113,6 @@ static void state_machine(void)
 
     case STATE_POWER_UP:
         retries--;
-
-        registers_set( REG_WDT_RESET, 0 );
-        registers_set( REG_WDT_POWER, 0 );
-        registers_set( REG_WDT_STOP, 0 );
         power_state = STATE_CHECK_3V;
 
         /* note - perform_poweron enables interrupts temporarily */
@@ -125,11 +121,8 @@ static void state_machine(void)
 
     case STATE_CHECK_3V:
         if ( board_3v3() ) {
+            board_preboot_setup();
             power_state = STATE_ON;
-            twi_slave_init();
-            board_disable_interrupt( START_ALL );
-            board_watchdog_activity_start();
-
         } else {
             board_poweroff();
             if ( retries > 0 ) {
