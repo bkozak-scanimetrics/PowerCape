@@ -11,7 +11,7 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <linux/i2c-dev.h>
-#include "../avr/registers.h"
+#include "../power_fw/registers.h"
 
 #define AVR_ADDRESS         0x21
 #define INA_ADDRESS         0x40
@@ -56,13 +56,13 @@ int i2c_read( void *buf, int len )
 int i2c_write( void *buf, int len )
 {
     int rc = 0;
-    
-    if ( write( handle, buf, len ) != len ) 
+
+    if ( write( handle, buf, len ) != len )
     {
         printf( "I2C write failed: %s\n", strerror( errno ) );
         rc = -1;
     }
-    
+
     return rc;
 }
 
@@ -71,7 +71,7 @@ int register_read( unsigned char reg, unsigned char *data )
 {
     int rc = -1;
     unsigned char bite[ 4 ];
-    
+
     bite[ 0 ] = reg;
     if ( i2c_write( bite, 1 ) == 0 )
     {
@@ -81,7 +81,7 @@ int register_read( unsigned char reg, unsigned char *data )
             rc = 0;
         }
     }
-    
+
     return rc;
 }
 
@@ -90,7 +90,7 @@ int register32_read( unsigned char reg, unsigned int *data )
 {
     int rc = -1;
     unsigned char bite[ 4 ];
-    
+
     bite[ 0 ] = reg;
     if ( i2c_write( bite, 1 ) == 0 )
     {
@@ -99,7 +99,7 @@ int register32_read( unsigned char reg, unsigned int *data )
             rc = 0;
         }
     }
-    
+
     return rc;
 }
 
@@ -108,7 +108,7 @@ int register_write( unsigned char reg, unsigned char data )
 {
     int rc = -1;
     unsigned char bite[ 4 ];
-    
+
     bite[ 0 ] = reg;
     bite[ 1 ] = data;
 
@@ -116,7 +116,7 @@ int register_write( unsigned char reg, unsigned char data )
     {
         rc = 0;
     }
-    
+
     return rc;
 }
 
@@ -125,7 +125,7 @@ int register32_write( unsigned char reg, unsigned int data )
 {
     int rc = -1;
     unsigned char bite[ 6 ];
-    
+
     bite[ 0 ] = reg;
     bite[ 1 ] = data & 0xFF;
     bite[ 2 ] = ( data >> 8 ) & 0xFF;
@@ -136,7 +136,7 @@ int register32_write( unsigned char reg, unsigned int data )
     {
         rc = 0;
     }
-    
+
     return rc;
 }
 
@@ -145,7 +145,7 @@ int cape_enter_bootloader( void )
 {
     unsigned char b;
     int rc = 2;
-    
+
     if ( register_write( REG_CONTROL, CONTROL_BOOTLOAD ) == 0 )
     {
         if ( register_read( REG_CONTROL, &b ) == 0 )
@@ -158,7 +158,7 @@ int cape_enter_bootloader( void )
             rc = 0;
         }
     }
-    
+
     return rc;
 }
 
@@ -167,19 +167,19 @@ int cape_read_rtc( time_t *iptr )
 {
     int rc = 1;
     unsigned int seconds;
-    
+
     if ( register32_read( REG_SECONDS_0, &seconds ) == 0 )
     {
         //printf( "Cape RTC seconds %08X (%d)\n", seconds, seconds );
         printf( ctime( (time_t*)&seconds ) );
-        
+
         if ( iptr != NULL )
         {
             *iptr = seconds;
         }
         rc = 0;
     }
-    
+
     return rc;
 }
 
@@ -188,7 +188,7 @@ int cape_write_rtc( void )
 {
     int rc = 1;
     unsigned int seconds = time( NULL );
-    
+
     //printf( "System seconds %08X (%d)\n", seconds, seconds );
     printf( ctime( (time_t*)&seconds ) );
 
@@ -196,7 +196,7 @@ int cape_write_rtc( void )
     {
         rc = 0;
     }
-    
+
     return rc;
 }
 
@@ -258,29 +258,29 @@ int cape_show_cape_info( void )
 
     if ( capability >= CAPABILITY_WDT )
     {
-        if ( register_read( REG_BOARD_TYPE, &type) == 0 && 
-             register_read( REG_BOARD_REV, &revision ) == 0 && 
+        if ( register_read( REG_BOARD_TYPE, &type) == 0 &&
+             register_read( REG_BOARD_REV, &revision ) == 0 &&
              register_read( REG_BOARD_STEP, &stepping ) == 0 )
         {
             if ( revision <= 32 || revision >= 127 ) revision = '?';
             if ( stepping <= 32 || stepping >= 127 ) stepping = '?';
-            printf("%s PowerCape %c%c\n", 
-		type == BOARD_TYPE_BONE ? "BeagleBone" : 
-		    type == BOARD_TYPE_PI ? "Raspberry Pi" : "Unknown", 
-		revision, 
+            printf("%s PowerCape %c%c\n",
+		type == BOARD_TYPE_BONE ? "BeagleBone" :
+		    type == BOARD_TYPE_PI ? "Raspberry Pi" : "Unknown",
+		revision,
 		stepping);
         }
 
-        if ( register_read(REG_WDT_RESET, &c1) == 0 && 
-             register_read(REG_WDT_POWER, &c2) == 0 && 
-             register_read(REG_WDT_STOP, &c3) == 0 && 
+        if ( register_read(REG_WDT_RESET, &c1) == 0 &&
+             register_read(REG_WDT_POWER, &c2) == 0 &&
+             register_read(REG_WDT_STOP, &c3) == 0 &&
              register_read(REG_WDT_START, &c4) == 0 )
         {
             printf("Watchdog: power cycle @ %d, power down @ %d, start within @ %d, reset for %d\n", c2, c3, c4, c1);
         }
     }
 
-    if ( capability >= CAPABILITY_RTC ) 
+    if ( capability >= CAPABILITY_RTC )
     {
 	unsigned int seconds;
 	if ( register32_read(REG_SECONDS_0, &seconds) == 0 )
@@ -295,11 +295,11 @@ int cape_show_cape_info( void )
 	if ( c & START_BUTTON ) printf("button press; ");
 	if ( c & START_EXTERNAL ) printf("external event; ");
 	if ( c & START_PWRGOOD ) printf("power good signal; ");
-	if ( c & START_TIMEOUT ) 
+	if ( c & START_TIMEOUT )
 	{
             unsigned char hours, minutes, seconds;
-            if ( register_read(REG_RESTART_HOURS , &hours) == 0 && 
-                 register_read(REG_RESTART_MINUTES , &minutes) == 0 && 
+            if ( register_read(REG_RESTART_HOURS , &hours) == 0 &&
+                 register_read(REG_RESTART_MINUTES , &minutes) == 0 &&
                  register_read(REG_RESTART_SECONDS , &seconds) == 0 )
             {
                 if ( seconds > 0 ) {
@@ -334,7 +334,7 @@ int cape_show_cape_info( void )
         }
     }
 
-    // if ( register_read(REG_MCUSR, &c1) == 0 && 
+    // if ( register_read(REG_MCUSR, &c1) == 0 &&
     //      register_read(REG_OSCCAL, &c2) == 0 )
     // {
     //     printf("AVR MCURS: 0x%02x, OSCCAL: 0x%02x\n", c1, c2);
@@ -411,25 +411,25 @@ void parse( int argc, char *argv[] )
                 operation = OP_QUERY;
                 break;
             }
-            
+
             case 'r':
             {
                 operation = OP_READ_RTC;
                 break;
             }
-            
+
             case 's':
             {
                 operation = OP_SET_SYSTIME;
                 break;
             }
-            
+
             case 'w':
             {
                 operation = OP_WRITE_RTC;
                 break;
             }
-            
+
             case 'h':
             {
                 operation = OP_NONE;
@@ -455,13 +455,13 @@ int main( int argc, char *argv[] )
 
     snprintf( filename, 19, "/dev/i2c-%d", i2c_bus );
     handle = open( filename, O_RDWR );
-    if ( handle < 0 ) 
+    if ( handle < 0 )
     {
         fprintf( stderr, "Error opening device %s: %s\n", filename, strerror( errno ) );
         exit( 1 );
     }
 
-    if ( ioctl( handle, I2C_SLAVE, AVR_ADDRESS ) < 0 ) 
+    if ( ioctl( handle, I2C_SLAVE, AVR_ADDRESS ) < 0 )
     {
         fprintf( stderr, "IOCTL Error: %s\n", strerror( errno ) );
         exit( 1 );
@@ -496,7 +496,7 @@ int main( int argc, char *argv[] )
         case OP_SET_SYSTIME:
         {
             struct timeval t;
-            
+
             rc = cape_read_rtc( &t.tv_sec );
             if ( rc == 0 )
             {
@@ -509,13 +509,13 @@ int main( int argc, char *argv[] )
             }
             break;
         }
-        
+
         case OP_WRITE_RTC:
         {
             rc = cape_write_rtc();
             break;
         }
-        
+
         default:
         case OP_NONE:
         {

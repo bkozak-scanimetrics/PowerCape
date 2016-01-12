@@ -1,6 +1,8 @@
 #ifndef __REGISTERS_H__
 #define __REGISTERS_H__
 
+#include <stdint.h>
+
 enum registers_type {
     REG_MCUSR,                  // 0 - AVR register
     REG_OSCCAL,                 // 1 - AVR register
