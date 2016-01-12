@@ -90,6 +90,7 @@ int main( void )
             {
                 board_watchdog_check();
             } else if (board_power_state_is_off()) {
+            	while ( ASSR & ( 1 << TCR2AUB ) ) { /* wait */ }
                 sleep_enable();
                 sleep_cpu();
                 sleep_disable();
