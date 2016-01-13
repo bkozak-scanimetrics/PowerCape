@@ -11,6 +11,7 @@
 ******************************************************************************/
 void moinitor_poweroff(void);
 void mointor_poweron(void);
+void monitor_activity(void);
 void monitor_state_machine(void);
 /*****************************************************************************/
 #endif /* MONITOR_H_ */

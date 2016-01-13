@@ -9,6 +9,7 @@
 #include "board.h"
 #include "board_watchdog.h"
 #include "sys_time.h"
+#include "monitor.h"
 
 extern volatile uint32_t seconds;
 extern volatile uint8_t rebootflag;
@@ -59,6 +60,7 @@ void registers_set( uint8_t index, uint8_t value )
 uint8_t registers_host_read( uint8_t index )
 {
     board_watchdog_activity();
+    monitor_activity();
 
     switch ( index )
     {
@@ -99,6 +101,7 @@ uint8_t registers_host_read( uint8_t index )
 void registers_host_write( uint8_t index, uint8_t data )
 {
     board_watchdog_activity();
+    monitor_activity();
 
     switch ( index )
     {
