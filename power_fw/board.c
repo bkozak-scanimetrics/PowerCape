@@ -1,16 +1,42 @@
+/******************************************************************************
+*                                  INCLUDES                                   *
+******************************************************************************/
+#include "board.h"
+
 #include <stdlib.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/eeprom.h>
 #include <avr/sleep.h>
+
 #include "registers.h"
 #include "bb_i2c.h"
-#include "board.h"
 #include "board_power.h"
 #include "twi_slave.h"
 #include "board_watchdog.h"
 #include "sys_time.h"
-
+/******************************************************************************
+*                                    DATA                                     *
+******************************************************************************/
+static const uint8_t wiper_value[ 11 ] = {
+    0,      // +0
+    13,     // +10k
+    26,     // +20k
+    38,     // +30k
+    51,     // +40k
+    64,     // +50k
+    76,     // +60k
+    89,     // +70k
+    102,    // +80k
+    114,    // +90k
+    127,    // +100k (max)
+};
+/******************************************************************************
+*                            FUNCTION DEFINITIONS                             *
+******************************************************************************/
+/**
+* \brief turn the beaglebone's power on
+**/
 void board_poweron( void )
 {
     PORTD |= PIN_D;
@@ -19,12 +45,15 @@ void board_poweron( void )
     __asm__ volatile( "nop\n\t" );
     PORTD &= ~PIN_CP;
     PORTD &= ~PIN_D;
-#ifdef DEBUG
+
+#if DEBUG
     board_led_on( 1 );
 #endif
 }
-
-
+/*****************************************************************************/
+/**
+* \brief turn the beaglebone's power off
+**/
 void board_poweroff( void )
 {
     PORTD &= ~PIN_D;
@@ -36,72 +65,67 @@ void board_poweroff( void )
     board_led_off( 1 );
 #endif
 }
-
-
+/*****************************************************************************/
+/**
+* \brief turn an led on
+**/
 void board_led_on( uint8_t led )
 {
-    if ( led == 0 )
-    {
-        PORTB |= PIN_LED0;
-    }
-    else
-    {
-        PORTB |= PIN_LED1;
-    }
+    PORTB |= led == 0 ? PIN_LED0 : PIN_LED1;
 }
-
-
+/*****************************************************************************/
+/**
+* \brief turn an led off
+**/
 void board_led_off( uint8_t led )
 {
-    if ( led == 0 )
-    {
-        PORTB &= ~PIN_LED0;
-    }
-    else
-    {
-        PORTB &= ~PIN_LED1;
-    }
+    PORTB &= led == 0 ? ~PIN_LED0 : ~PIN_LED1;
 }
-
-
+/*****************************************************************************/
+/**
+* \brief turn the charge enable on or off
+**/
 void board_ce( uint8_t enable )
 {
-    if ( enable )
-    {
+    if (enable) {
         DDRC &= ~PIN_CE;
-    }
-    else
-    {
+    } else {
         DDRC |= PIN_CE;
     }
 }
-
-
-uint8_t board_3v3( void )
+/*****************************************************************************/
+/**
+* \brief return true ifff the 3v3 rail of the beaglebone is high
+**/
+uint8_t board_3v3(void)
 {
-    return ( PIND & PIN_DETECT );
+    return (PIND & PIN_DETECT);
 }
-
-
+/*****************************************************************************/
+/**
+* \brief hold the beaglebone in reset
+**/
 void board_hold_reset( void )
 {
-    if ( registers_get( REG_BOARD_TYPE ) == BOARD_TYPE_BONE )
-    {
+    if ( registers_get( REG_BOARD_TYPE ) == BOARD_TYPE_BONE ) {
         PORTD &= ~PIN_DETECT;
         DDRD |= PIN_DETECT;
     }
 }
-
-
+/*****************************************************************************/
+/**
+* \brief release the beaglebone reset
+**/
 void board_release_reset( void )
 {
-    if ( registers_get( REG_BOARD_TYPE ) == BOARD_TYPE_BONE )
-    {
+    if (registers_get( REG_BOARD_TYPE ) == BOARD_TYPE_BONE) {
         DDRD &= ~PIN_DETECT;
     }
 }
-
-
+/*****************************************************************************/
+/**
+* \brief return true iff dc power is available (and set status register)
+**/
 uint8_t board_pgood( void )
 {
     uint8_t rc = 0;
@@ -118,16 +142,25 @@ uint8_t board_pgood( void )
 
     return rc;
 }
-
-
+/*****************************************************************************/
+/**
+* \brief enable an interrupt for the powergood input
+*
+* Note that pgood high means external dc power is avaiable
+**/
 void board_enable_pgood_irq( void )
 {
     // Enable PGOOD interrupt
     PCMSK1 |= ( PIN_PGOOD );
     PCICR  |= ( 1 << PCIE1 );
 }
-
-
+/*****************************************************************************/
+/**
+* \brief enable interrupts for (opto switch and/or button) poweron events
+*
+* \param mask mask of power reasons which tells us which interrupts need to
+* be enabled here
+**/
 void board_enable_interrupt( uint8_t mask )
 {
     if ( mask & START_EXTERNAL )
@@ -142,8 +175,13 @@ void board_enable_interrupt( uint8_t mask )
         PCICR  |= ( 1 << PCIE2 );
     }
 }
-
-
+/*****************************************************************************/
+/**
+* \brief disable interrupts for (opto switch and/or button) poweron events
+*
+* \param mask mask of power reasons which tells us which interrupts need to
+* be disabled here
+**/
 void board_disable_interrupt( uint8_t mask )
 {
     if ( mask & START_EXTERNAL )
@@ -158,8 +196,10 @@ void board_disable_interrupt( uint8_t mask )
         PCICR  &= ~( 1 << PCIE2 );
     }
 }
-
-
+/*****************************************************************************/
+/**
+* \brief configure charge current for version A2 boards
+**/
 void board_set_charge_current( uint8_t thirds )
 {
     uint8_t pins;
@@ -181,23 +221,10 @@ void board_set_charge_current( uint8_t thirds )
         DDRC |= pins;
     }
 }
-
-
-uint8_t wiper_value[ 11 ] = {
-    0,      // +0
-    13,     // +10k
-    26,     // +20k
-    38,     // +30k
-    51,     // +40k
-    64,     // +50k
-    76,     // +60k
-    89,     // +70k
-    102,    // +80k
-    114,    // +90k
-    127,    // +100k (max)
-};
-
-
+/*****************************************************************************/
+/**
+* \brief configure charge timer for version A2 boards
+**/
 void board_set_charge_timer( uint8_t hours )
 {
     uint8_t b;
@@ -218,8 +245,10 @@ void board_set_charge_timer( uint8_t hours )
         }
     }
 }
-
-
+/*****************************************************************************/
+/**
+* \brief initilize gpio to known good state
+**/
 void board_gpio_config( void )
 {
     // Enable pull-ups on input pins to keep unconnected
@@ -237,8 +266,7 @@ void board_gpio_config( void )
 
     board_enable_pgood_irq();
 }
-
-
+/*****************************************************************************/
 // OPTO
 ISR( PCINT0_vect, ISR_BLOCK )
 {
@@ -249,8 +277,7 @@ ISR( PCINT0_vect, ISR_BLOCK )
         board_power_event( START_EXTERNAL );
     }
 }
-
-
+/*****************************************************************************/
 // Power Good oscillation fix
 ISR( PCINT1_vect, ISR_BLOCK )
 {
@@ -260,7 +287,7 @@ ISR( PCINT1_vect, ISR_BLOCK )
         board_ce( 0 );
     }
 }
-
+/*****************************************************************************/
 // Button
 ISR( PCINT2_vect, ISR_BLOCK )
 {
@@ -270,9 +297,10 @@ ISR( PCINT2_vect, ISR_BLOCK )
         board_power_event( START_BUTTON );
     }
 }
-
-
-
+/*****************************************************************************/
+/**
+* \brief initilize board peripherals
+**/
 void board_init( void )
 {
     board_gpio_config();
@@ -280,21 +308,34 @@ void board_init( void )
     sys_time_init();
     bb_i2c_init();
 }
-
+/*****************************************************************************/
+/**
+* \brief called when entering the poweron state
+*
+* Everything that cares about poweron events should have code here
+**/
 void board_preboot_setup(void)
 {
     twi_slave_init();
     board_disable_interrupt( START_ALL );
     board_watchdog_boot_setup();
 }
-
+/*****************************************************************************/
+/**
+* \brief called when entering the poweroff state
+*
+* Everything that cares about poweroff events should have code here
+**/
 void board_off_setup(void)
 {
 	board_enable_interrupt( registers_get( REG_START_ENABLE ) );
 	sys_time_begin_countdown();
 	registers_clear_mask( REG_START_REASON, 0xFF );
 }
-
+/*****************************************************************************/
+/**
+* \brief ?
+**/
 void board_stop( void )
 {
     TCCR2B = 0;
@@ -303,4 +344,4 @@ void board_stop( void )
     PCMSK0 = PCMSK1 = PCMSK2 = 0;
     DDRB = DDRC = DDRD = 0;
 }
-
+/*****************************************************************************/
