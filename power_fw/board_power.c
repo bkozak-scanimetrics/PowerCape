@@ -18,10 +18,12 @@
 #include "registers.h"
 #include "twi_slave.h"
 #include "board_watchdog.h"
+#include "sys_time.h"
 /******************************************************************************
 *                                   DEFINES                                   *
 ******************************************************************************/
-#define POWERUP_RETRIES 3
+#define POWERUP_RETRIES       3
+#define POWER_RESTORE_SECONDS 5
 /******************************************************************************
 *                                    TYPES                                    *
 ******************************************************************************/
@@ -41,6 +43,8 @@ enum power_state_type {
 ******************************************************************************/
 static volatile uint8_t power_state = STATE_INIT;
 static volatile uint8_t retries;
+
+static uint32_t power_lost_time;
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
@@ -48,6 +52,7 @@ static bool reason_valid(uint8_t reason);
 static void state_powerup(void);
 static void state_machine(void);
 static void perform_poweron(void);
+static bool power_restore_check(void);
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
@@ -73,6 +78,11 @@ static void perform_poweron(void)
     }
 }
 /*****************************************************************************/
+static bool power_restore_check(void)
+{
+    return (sys_time_get_ticks() - power_lost_time) >= POWER_RESTORE_SECONDS;
+}
+/*****************************************************************************/
 static void state_machine(void)
 {
     switch(power_state)
@@ -88,6 +98,7 @@ static void state_machine(void)
 
     case STATE_SETUP_OFF:
 
+        power_lost_time = sys_time_get_ticks();
         board_off_setup();
 
         if ( board_pgood() ) {
@@ -102,12 +113,16 @@ static void state_machine(void)
         if ( board_pgood() ) {
             power_state = STATE_OFF_WITH_PGOOD;
             board_power_event( START_PWRGOOD );
+        } else if(power_restore_check()) {
+            state_powerup();
         }
         break;
 
     case STATE_OFF_WITH_PGOOD:
         if ( !board_pgood() ) {
             power_state = STATE_OFF_NO_PGOOD;
+        } else if(power_restore_check()) {
+            state_powerup();
         }
         break;
 
