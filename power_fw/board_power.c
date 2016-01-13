@@ -93,6 +93,7 @@ static void state_machine(void)
             power_state = STATE_OFF_NO_PGOOD;
         }
 
+        registers_clear_mask(REG_START_REASON, 0xFF);
         sys_notify_off();
         break;
 
@@ -195,6 +196,7 @@ void board_power_event(uint8_t reason)
 {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
         if(board_power_state_is_off() && reason_valid(reason)) {
+            registers_set_mask(REG_START_REASON, reason);
             state_powerup();
         }
     }
