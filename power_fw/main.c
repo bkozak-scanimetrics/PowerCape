@@ -16,6 +16,7 @@
 #include "board_power.h"
 #include "board_watchdog.h"
 #include "sys_time.h"
+#include "monitor.h"
 
 volatile uint8_t rebootflag = 0;
 
@@ -87,6 +88,8 @@ int main( void )
             last_tick = system_ticks;
 
             board_power_sm();
+            monitor_state_machine();
+
             if (board_power_state_is_on())
             {
                 board_watchdog_check();

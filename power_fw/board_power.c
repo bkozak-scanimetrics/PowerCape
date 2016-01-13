@@ -16,20 +16,16 @@
 
 #include "board.h"
 #include "registers.h"
-#include "twi_slave.h"
-#include "board_watchdog.h"
-#include "sys_time.h"
+#include "sys.h"
 /******************************************************************************
 *                                   DEFINES                                   *
 ******************************************************************************/
 #define POWERUP_RETRIES       3
-#define POWER_RESTORE_SECONDS 5
 /******************************************************************************
 *                                    TYPES                                    *
 ******************************************************************************/
 enum power_state_type {
     STATE_INIT,
-    STATE_SETUP_OFF,
     STATE_OFF_NO_PGOOD,
     STATE_OFF_WITH_PGOOD,
     STATE_POWER_UP,
@@ -43,8 +39,6 @@ enum power_state_type {
 ******************************************************************************/
 static volatile uint8_t power_state = STATE_INIT;
 static volatile uint8_t retries;
-
-static uint32_t power_lost_time;
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
@@ -52,11 +46,9 @@ static bool reason_valid(uint8_t reason);
 static void state_powerup(void);
 static void state_machine(void);
 static void perform_poweron(void);
-static bool power_restore_check(void);
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
-/*****************************************************************************/
 static bool reason_valid(uint8_t reason)
 {
     return registers_get( REG_START_ENABLE ) & reason;
@@ -78,28 +70,22 @@ static void perform_poweron(void)
     }
 }
 /*****************************************************************************/
-static bool power_restore_check(void)
-{
-    return (sys_time_get_ticks() - power_lost_time) >= POWER_RESTORE_SECONDS;
-}
-/*****************************************************************************/
 static void state_machine(void)
 {
     switch(power_state)
     {
     case STATE_INIT:
         if ( board_3v3() ) {
-            retries = POWERUP_RETRIES;
-            power_state = STATE_CHECK_3V;
+            power_state = STATE_ON;
+             sys_notify_on();
         } else {
             state_powerup();
         }
         break;
 
-    case STATE_SETUP_OFF:
+    case STATE_POWER_DOWN:
 
-        power_lost_time = sys_time_get_ticks();
-        board_off_setup();
+        board_poweroff();
 
         if ( board_pgood() ) {
             power_state = STATE_OFF_WITH_PGOOD;
@@ -107,22 +93,20 @@ static void state_machine(void)
             power_state = STATE_OFF_NO_PGOOD;
         }
 
+        sys_notify_off();
         break;
 
     case STATE_OFF_NO_PGOOD:
-        if ( board_pgood() ) {
+        if (board_pgood()) {
             power_state = STATE_OFF_WITH_PGOOD;
-            board_power_event( START_PWRGOOD );
-        } else if(power_restore_check()) {
-            state_powerup();
+            sys_notify_off_and_pgood();
         }
         break;
 
     case STATE_OFF_WITH_PGOOD:
-        if ( !board_pgood() ) {
+        if (!board_pgood()) {
             power_state = STATE_OFF_NO_PGOOD;
-        } else if(power_restore_check()) {
-            state_powerup();
+            sys_notify_off_and_pbad();
         }
         break;
 
@@ -135,36 +119,25 @@ static void state_machine(void)
         break;
 
     case STATE_CHECK_3V:
-        if ( board_3v3() ) {
-            board_preboot_setup();
+        if(board_3v3()) {
             power_state = STATE_ON;
+            sys_notify_on();
+        } else if(retries != 0) {
+            power_state = STATE_POWER_UP;
         } else {
-            board_poweroff();
-            if ( retries > 0 ) {
-                power_state = STATE_POWER_UP;
-            }
-            else {
-                power_state = STATE_POWER_DOWN;
-            }
-        }
-        break;
-
-    case STATE_ON:
-        if ( board_3v3() == 0 ) {
             power_state = STATE_POWER_DOWN;
         }
         break;
 
-    case STATE_POWER_DOWN:
-        twi_slave_stop();
-        board_poweroff();
-        power_state = STATE_SETUP_OFF;
+    case STATE_ON:
+        if (board_3v3() == 0) {
+            power_state = STATE_POWER_DOWN;
+        }
         break;
 
     case STATE_CYCLE_POWER:
-        twi_slave_stop();
         board_poweroff();
-
+        sys_notify_off();
         state_powerup();
         break;
     }

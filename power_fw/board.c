@@ -310,30 +310,6 @@ void board_init( void )
 }
 /*****************************************************************************/
 /**
-* \brief called when entering the poweron state
-*
-* Everything that cares about poweron events should have code here
-**/
-void board_preboot_setup(void)
-{
-    twi_slave_init();
-    board_disable_interrupt( START_ALL );
-    board_watchdog_boot_setup();
-}
-/*****************************************************************************/
-/**
-* \brief called when entering the poweroff state
-*
-* Everything that cares about poweroff events should have code here
-**/
-void board_off_setup(void)
-{
-	board_enable_interrupt( registers_get( REG_START_ENABLE ) );
-	sys_time_begin_countdown();
-	registers_clear_mask( REG_START_REASON, 0xFF );
-}
-/*****************************************************************************/
-/**
 * \brief ?
 **/
 void board_stop( void )

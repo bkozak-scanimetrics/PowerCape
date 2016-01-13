@@ -78,8 +78,6 @@ void board_disable_interrupt( uint8_t mask );
 void board_gpio_config( void );
 void board_init( void );
 void board_stop( void );
-void board_preboot_setup(void);
-void board_off_setup(void);
 /*****************************************************************************/
 #endif  // __BOARD_H__
 
