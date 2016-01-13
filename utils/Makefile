@@ -8,3 +8,5 @@ ina219:	ina219.c
 power:	powercape.c
 	gcc -o power powercape.c
 
+clean:
+	rm -f power ina219
