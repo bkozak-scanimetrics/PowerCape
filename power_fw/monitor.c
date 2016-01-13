@@ -98,7 +98,13 @@ void mointor_poweron(void)
         return;
     }
 
-    state = MONITOR_ON;
+    update_activity();
+
+    if(registers_get(REG_MONITOR_CTL) & MONITOR_BOOT) {
+        state = MONITOR_WAIT_BOOT;
+    } else {
+        state = MONITOR_ON;
+    }
 }
 /*****************************************************************************/
 void monitor_activity(void)
