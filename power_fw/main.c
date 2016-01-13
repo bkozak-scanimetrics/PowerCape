@@ -17,7 +17,6 @@
 #include "board_watchdog.h"
 #include "sys_time.h"
 
-extern volatile uint16_t system_ticks;
 volatile uint8_t rebootflag = 0;
 
 uint8_t mcusr __attribute__ ((section (".noinit")));
