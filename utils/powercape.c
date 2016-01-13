@@ -11,7 +11,7 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <linux/i2c-dev.h>
-#include "../power_fw/registers.h"
+#include "../power_fw/inc/registers.h"
 
 #define AVR_ADDRESS         0x21
 #define INA_ADDRESS         0x40

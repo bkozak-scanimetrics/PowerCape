@@ -46,7 +46,7 @@ endif
 #				  BUILD DIRS				      #
 ###############################################################################
 SRC_DIRS += .
-INC_DIRS += .
+INC_DIRS += . inc
 
 BUILD_DIR := build
 OBJ_DIR	  := $(BUILD_DIR)/obj
