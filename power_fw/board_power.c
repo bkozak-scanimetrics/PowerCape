@@ -170,9 +170,14 @@ bool board_power_state_is_on(void)
 /**
 * \brief request that the board be power cycled
 **/
-void board_power_req_cycle(void)
+void board_power_req_cycle(uint8_t reason)
 {
-   power_state = STATE_CYCLE_POWER;
+    if(!reason_valid(reason)) {
+        return;
+    }
+
+    power_state = STATE_CYCLE_POWER;
+    registers_set(REG_START_REASON, reason);
 }
 /*****************************************************************************/
 /**
@@ -196,7 +201,7 @@ void board_power_event(uint8_t reason)
 {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
         if(board_power_state_is_off() && reason_valid(reason)) {
-            registers_set_mask(REG_START_REASON, reason);
+            registers_set(REG_START_REASON, reason);
             state_powerup();
         }
     }

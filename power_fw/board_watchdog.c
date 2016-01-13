@@ -82,7 +82,7 @@ void board_watchdog_check(void)
         i -= 1;
         registers_set( REG_WDT_POWER, i );
         if ( i == 0 ) {
-            board_power_req_cycle();
+            board_power_req_cycle(START_WDT);
         }
     }
 
@@ -101,7 +101,7 @@ void board_watchdog_check(void)
         if(activity_watchdog != 0) {
             activity_watchdog -= 1;
             if(activity_watchdog == 0) {
-                 board_power_req_cycle();
+                 board_power_req_cycle(START_WDT);
             }
         }
     }

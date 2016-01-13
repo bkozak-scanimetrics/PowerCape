@@ -57,7 +57,8 @@ enum registers_type {
 #define START_PWRGOOD           0x04
 #define START_TIMEOUT           0x08
 #define START_MONITOR           0x10
-#define START_ALL               0x1F
+#define START_WDT               0x20
+#define START_ALL               0x3F
 
 // CAPABILITY levels
 #define CAPABILITY_RTC          0x00    // The presence of the "extended" register alone indicates RTC
