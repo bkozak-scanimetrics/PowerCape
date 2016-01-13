@@ -15,6 +15,7 @@
 #include "monitor.h"
 #include "sys_time.h"
 #include "board_watchdog.h"
+#include "board_power.h"
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
@@ -53,7 +54,7 @@ void sys_notify_on(void)
 **/
 void sys_notify_off_and_pgood(void)
 {
-
+    board_power_event(START_PWRGOOD);
 }
 /*****************************************************************************/
 /**
