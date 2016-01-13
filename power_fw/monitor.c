@@ -23,9 +23,9 @@
 *                                    TYPES                                    *
 ******************************************************************************/
 enum monitor_state {
-	MONITOR_WAIT,
-	MONITOR_OFF,
-	MONITOR_ON
+    MONITOR_WAIT,
+    MONITOR_OFF,
+    MONITOR_ON
 };
 /******************************************************************************
 *                                    DATA                                     *
@@ -41,7 +41,11 @@ static bool restoration_check(void);
 ******************************************************************************/
 static bool restoration_check(void)
 {
-	return (sys_time_get_ticks() - loss_time) >= POWER_RESTORE_SECONDS;
+    if(registers_get(REG_MONITOR_CTL) & MONITOR_POWER_ALWAYS) {
+        return (sys_time_get_ticks() - loss_time) >= POWER_RESTORE_SECONDS;
+    } else {
+        return false;
+    }
 }
 /*****************************************************************************/
 /**
@@ -49,8 +53,8 @@ static bool restoration_check(void)
 **/
 void moinitor_poweroff(void)
 {
-	loss_time = sys_time_get_ticks();
-	state = MONITOR_OFF;
+    loss_time = sys_time_get_ticks();
+    state = MONITOR_OFF;
 }
 /*****************************************************************************/
 /**
@@ -58,7 +62,7 @@ void moinitor_poweroff(void)
 **/
 void mointor_poweron(void)
 {
-	state = MONITOR_ON;
+    state = MONITOR_ON;
 }
 /*****************************************************************************/
 /**
@@ -68,17 +72,17 @@ void mointor_poweron(void)
 **/
 void monitor_state_machine(void)
 {
-	switch(state) {
-	case MONITOR_WAIT:
-		break;
-	case MONITOR_OFF:
-		if(restoration_check()) {
-			board_power_event(START_PWRGOOD);
-			state = MONITOR_WAIT;
-		}
-		break;
-	case MONITOR_ON:
-		break;
-	}
+    switch(state) {
+    case MONITOR_WAIT:
+        break;
+    case MONITOR_OFF:
+        if(restoration_check()) {
+            board_power_event(START_MONITOR);
+            state = MONITOR_WAIT;
+        }
+        break;
+    case MONITOR_ON:
+        break;
+    }
 }
 /*****************************************************************************/

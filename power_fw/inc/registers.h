@@ -1,8 +1,12 @@
 #ifndef __REGISTERS_H__
 #define __REGISTERS_H__
-
+/******************************************************************************
+*                                  INCLUDES                                   *
+******************************************************************************/
 #include <stdint.h>
-
+/******************************************************************************
+*                                    TYPES                                    *
+******************************************************************************/
 enum registers_type {
     REG_MCUSR,                  // 0 - AVR register
     REG_OSCCAL,                 // 1 - AVR register
@@ -29,11 +33,13 @@ enum registers_type {
     REG_I2C_ADDRESS,            // 22   Slave address to use on I2C interface
     REG_I2C_ICHARGE,            // 23   Charge current (0-3)/3 amp
     REG_I2C_TCHARGE,            // 24   Charger timer in hours (3-10)
+    REG_MONITOR_CTL,            // 25
 
     NUM_REGISTERS
 };
-
-
+/******************************************************************************
+*                                   DEFINES                                   *
+******************************************************************************/
 // STATUS register bits
 #define STATUS_POWER_GOOD       0x01    // PG state
 #define STATUS_BUTTON           0x02    // Button state
@@ -50,7 +56,8 @@ enum registers_type {
 #define START_EXTERNAL          0x02
 #define START_PWRGOOD           0x04
 #define START_TIMEOUT           0x08
-#define START_ALL               0x0F
+#define START_MONITOR           0x10
+#define START_ALL               0x1F
 
 // CAPABILITY levels
 #define CAPABILITY_RTC          0x00    // The presence of the "extended" register alone indicates RTC
@@ -64,6 +71,11 @@ enum registers_type {
 #define BOARD_TYPE_PI           0x01
 #define BOARD_TYPE_UNKNOWN      0xFF
 
+// MONITOR_CTL bits
+#define MONITOR_POWER_ALWAYS    0x01
+/******************************************************************************
+*                             FUNCTION PROTOTYPES                             *
+******************************************************************************/
 void registers_init( void );
 void registers_set_mask( uint8_t index, uint8_t mask );
 void registers_clear_mask( uint8_t index, uint8_t mask );
@@ -71,7 +83,6 @@ uint8_t registers_get( uint8_t index );
 void registers_set( uint8_t idx, uint8_t data );
 uint8_t registers_host_read( uint8_t idx );
 void registers_host_write( uint8_t idx, uint8_t data );
-
-
+/*****************************************************************************/
 #endif  // __REGISTERS_H__
 

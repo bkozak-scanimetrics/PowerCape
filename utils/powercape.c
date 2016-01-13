@@ -213,6 +213,7 @@ int cape_query_reason_power_on( void )
         case 2: printf("OPTO\n"); break;
         case 4: printf("PGOOD\n"); break;
         case 8: printf("TIMEOUT\n"); break;
+        case 16: printf("MONITOR\n"); break;
         default: printf("CODE %d\n", reason); break;
         }
         rc = 0;
@@ -253,6 +254,7 @@ int cape_show_cape_info( void )
 	if ( c & START_EXTERNAL ) printf("external event ");
 	if ( c & START_PWRGOOD ) printf("power good ");
 	if ( c & START_TIMEOUT ) printf("timer");
+	if ( c & START_MONITOR ) printf("monitor");
         printf("\n");
     }
 
@@ -295,6 +297,7 @@ int cape_show_cape_info( void )
 	if ( c & START_BUTTON ) printf("button press; ");
 	if ( c & START_EXTERNAL ) printf("external event; ");
 	if ( c & START_PWRGOOD ) printf("power good signal; ");
+	if ( c & START_MONITOR ) printf("monitor; ");
 	if ( c & START_TIMEOUT )
 	{
             unsigned char hours, minutes, seconds;

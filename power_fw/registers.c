@@ -215,6 +215,7 @@ void registers_init( void )
     registers[ REG_BOARD_TYPE ]      = eeprom_get_board_type();
     registers[ REG_BOARD_REV ]       = eeprom_get_revision_value();
     registers[ REG_BOARD_STEP ]      = eeprom_get_stepping_value();
+    registers[REG_MONITOR_CTL]       = MONITOR_POWER_ALWAYS;
 
     t = eeprom_get_i2c_address();
     if ( t == 0xFF )
