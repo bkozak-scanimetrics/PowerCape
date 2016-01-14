@@ -23,8 +23,8 @@
 #define CONF_STORE_DEFAULTS \
     {\
         0x00, BOARD_TYPE_BONE, (uint8_t)'A', (uint8_t)'2', TWI_SLAVE_ADDRESS, \
-        0X01, 0X03, MONITOR_CONF_DEFAULT, MONITOR_BOOT_MINIUTES_DEFAULT, \
-        START_ALL \
+        0X01, 0X03, START_ALL, MONITOR_CONF_DEFAULT, \
+        MONITOR_BOOT_MINIUTES_DEFAULT, MONITOR_RUN_SECONDS_DEFAULT \
     }
 
 #define _CONF_FUNCTIONS(n, p) \
@@ -43,9 +43,10 @@ enum conf_params {
     CONF_I2C_ADDR,
     CONF_CHG_CURRENT,
     CONF_CHG_TIMER,
+    CONF_START_EN,
     CONF_MONITOR_CTL,
     CONF_BOOT_MINUTES,
-    CONF_START_EN,
+    CONF_RUN_SECONDS,
 
     CONF_COUNT
 };
@@ -68,6 +69,7 @@ _CONF_FUNCTIONS(charge_current, CONF_CHG_CURRENT);
 _CONF_FUNCTIONS(charge_timer, CONF_CHG_TIMER);
 _CONF_FUNCTIONS(monitor_ctl, CONF_MONITOR_CTL);
 _CONF_FUNCTIONS(boot_minutes, CONF_BOOT_MINUTES);
+_CONF_FUNCTIONS(run_seconds, CONF_RUN_SECONDS);
 _CONF_FUNCTIONS(start_en, CONF_START_EN);
 /*****************************************************************************/
 #endif /* CONF_STORE_H_ */

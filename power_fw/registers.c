@@ -177,6 +177,9 @@ void registers_host_write( uint8_t index, uint8_t data )
     case REG_START_ENABLE:
         conf_store_set_start_en(data);
         break;
+    case REG_MONITOR_RUN_SECONDS:
+        conf_store_set_run_seconds(data);
+        break;
 
     default:
         break;
@@ -201,6 +204,7 @@ void registers_init( void )
     registers[REG_MONITOR_CTL]          = conf_store_get_monitor_ctl();
     registers[REG_MONITOR_BOOT_MINUTES] = conf_store_get_boot_minutes();
     registers[ REG_START_ENABLE ]       = conf_store_get_start_en();
+    registers[REG_MONITOR_RUN_SECONDS]  = conf_store_get_run_seconds();
 
     t = conf_store_get_i2c_address();
     if ( t == 0xFF ) {

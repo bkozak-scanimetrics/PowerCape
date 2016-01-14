@@ -40,6 +40,7 @@ static enum monitor_state state;
 static bool restoration_check(void);
 static bool activity_expired(uint32_t time);
 static void update_activity(void);
+static bool run_failure(void);
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
@@ -72,6 +73,19 @@ static bool restoration_check(void)
 static bool boot_failure(void)
 {
     uint32_t timeout = (1 + registers_get(REG_MONITOR_BOOT_MINUTES)) * 60U;
+
+    return activity_expired(timeout);
+}
+/*****************************************************************************/
+static bool run_failure(void)
+{
+    uint32_t timeout;
+
+    if(!(registers_get(REG_MONITOR_CTL) & MONITOR_RUN)) {
+        return false;
+    }
+
+    timeout = (1 + registers_get(REG_MONITOR_RUN_SECONDS));
 
     return activity_expired(timeout);
 }
@@ -112,6 +126,8 @@ void monitor_activity(void)
     if(state == MONITOR_WAIT_BOOT) {
         update_activity();
         state = MONITOR_ON;
+    } else if(state == MONITOR_ON) {
+        update_activity();
     }
 }
 /*****************************************************************************/
@@ -145,6 +161,11 @@ void monitor_state_machine(void)
         }
         break;
     case MONITOR_ON:
+        if(run_failure()) {
+            update_activity();
+            state = MONITOR_WAIT_BOOT;
+            board_power_req_cycle(START_MONITOR);
+        }
         break;
     }
 }

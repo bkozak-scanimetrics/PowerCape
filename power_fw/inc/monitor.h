@@ -16,6 +16,7 @@
 #define MONITOR_CONF_DEFAULT          (MONITOR_POWER_ALWAYS)
 /* Note, actual boot minutes is 1 + register value */
 #define MONITOR_BOOT_MINIUTES_DEFAULT (1)
+#define MONITOR_RUN_SECONDS_DEFAULT   60
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
