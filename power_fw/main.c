@@ -17,6 +17,7 @@
 #include "board_watchdog.h"
 #include "sys_time.h"
 #include "monitor.h"
+#include "conf_store.h"
 
 volatile uint8_t rebootflag = 0;
 
@@ -56,10 +57,11 @@ int main( void )
 
     // Platform setup
     board_init();
+    init_conf_store();
     registers_init();
     registers_set( REG_MCUSR, mcusr );
 
-    oscval = eeprom_get_calibration_value();
+    oscval = conf_store_get_calibration_value();
     if ( oscval != 0xFF )
     {
         OSCCAL = oscval;
@@ -89,6 +91,7 @@ int main( void )
 
             board_power_sm();
             monitor_state_machine();
+            conf_store_task();
 
             if (board_power_state_is_on())
             {
@@ -119,7 +122,7 @@ int main( void )
         if ( registers_get( REG_OSCCAL ) != oscval )
         {
             oscval = registers_get( REG_OSCCAL );
-            eeprom_set_calibration_value( oscval );
+            conf_store_set_calibration_value( oscval );
             OSCCAL = oscval;
         }
     }

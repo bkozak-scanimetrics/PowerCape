@@ -4,12 +4,12 @@
 #include <avr/interrupt.h>
 #include <string.h>
 #include "registers.h"
-#include "eeprom.h"
 #include "twi_slave.h"
 #include "board.h"
 #include "board_watchdog.h"
 #include "sys_time.h"
 #include "monitor.h"
+#include "conf_store.h"
 
 extern volatile uint32_t seconds;
 extern volatile uint8_t rebootflag;
@@ -173,7 +173,7 @@ void registers_host_write( uint8_t index, uint8_t data )
         case REG_I2C_ADDRESS:
         {
             // TODO: qualify address
-            eeprom_update_byte( EEPROM_I2C_ADDR, data );    // TODO: interrupt context
+            store_config( CONF_I2C_ADDR, data );    // TODO: interrupt context
             break;
         }
 
@@ -181,7 +181,7 @@ void registers_host_write( uint8_t index, uint8_t data )
         {
             if ( data > 3 ) data = 3;
             board_set_charge_current( data );
-            eeprom_update_byte( EEPROM_CHG_CURRENT, data );    // TODO: interrupt context
+            store_config( CONF_CHG_CURRENT, data );    // TODO: interrupt context
             break;
         }
 
@@ -190,7 +190,7 @@ void registers_host_write( uint8_t index, uint8_t data )
             if ( data < 3 ) data = 3;
             if ( data > 10 ) data = 10;
             board_set_charge_timer( data );
-            eeprom_update_byte( EEPROM_CHG_TIMER, data );    // TODO: interrupt context
+            store_config( CONF_CHG_TIMER, data );    // TODO: interrupt context
             break;
         }
 
@@ -215,26 +215,26 @@ void registers_init( void )
     registers[ REG_RESTART_SECONDS ] = 0;
     registers[ REG_EXTENDED ]        = 0x69;
     registers[ REG_CAPABILITY ]      = CAPABILITY_STATUS;
-    registers[ REG_BOARD_TYPE ]      = eeprom_get_board_type();
-    registers[ REG_BOARD_REV ]       = eeprom_get_revision_value();
-    registers[ REG_BOARD_STEP ]      = eeprom_get_stepping_value();
+    registers[ REG_BOARD_TYPE ]      = conf_store_get_board_type();
+    registers[ REG_BOARD_REV ]       = conf_store_get_revision_value();
+    registers[ REG_BOARD_STEP ]      = conf_store_get_stepping_value();
     registers[REG_MONITOR_CTL]       = MONITOR_POWER_ALWAYS;
 
-    t = eeprom_get_i2c_address();
+    t = conf_store_get_i2c_address();
     if ( t == 0xFF )
     {
         t = TWI_SLAVE_ADDRESS;
     }
     registers[ REG_I2C_ADDRESS ]     = t;
 
-    t = eeprom_get_charge_current();
+    t = conf_store_get_charge_current();
     if ( t == 0xFF )
     {
         t = 1;  // 1/3 amp default
     }
     registers[ REG_I2C_ICHARGE ]     = t;
 
-    t = eeprom_get_charge_timer();
+    t = conf_store_get_charge_timer();
     if ( t == 0xFF )
     {
         t = 3;  // 3 hours default
