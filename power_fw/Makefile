@@ -45,8 +45,8 @@ endif
 ###############################################################################
 #				  BUILD DIRS				      #
 ###############################################################################
-SRC_DIRS += .
-INC_DIRS += . inc
+SRC_DIRS += src
+INC_DIRS += src inc
 
 BUILD_DIR := build
 OBJ_DIR	  := $(BUILD_DIR)/obj
@@ -74,6 +74,7 @@ vpath %.c $(SRC_DIRS)
 C_DIRS += $(SRC_DIRS) $(INC_DIRS)
 
 CLEAN_FILES += $(foreach dir,$(C_DIRS),$(wildcard $(dir)/*~))
+CLEAN_FILES += Makefile~
 CLEAN_DIRS  += $(BUILD_DIR)
 ###############################################################################
 #                                  FUNCTIONS                                  #
