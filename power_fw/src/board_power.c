@@ -138,7 +138,7 @@ static void state_machine(void)
 
     case STATE_CYCLE_POWER:
         board_poweroff();
-        sys_notify_off();
+        sys_notify_reboot();
         state_powerup();
         break;
     }

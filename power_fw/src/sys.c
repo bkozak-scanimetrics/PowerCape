@@ -48,6 +48,17 @@ void sys_notify_on(void)
 }
 /*****************************************************************************/
 /**
+* \brief called when rebooting the board
+*
+* Note that, once this is called, we know that we will soon get either a
+* sys_notify_on (if the reboot worked) or a sys_notify_off (if the reboot
+* failed).
+**/
+void sys_notify_reboot(void)
+{
+}
+/*****************************************************************************/
+/**
 * \brief called when board is off and dc power is applied
 *
 * Everything that cares about restoration of dc power should go here

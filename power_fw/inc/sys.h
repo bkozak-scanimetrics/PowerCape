@@ -11,6 +11,7 @@
 ******************************************************************************/
 void sys_notify_off(void);
 void sys_notify_on(void);
+void sys_notify_reboot(void);
 void sys_notify_off_and_pgood(void);
 void sys_notify_off_and_pbad(void);
 /*****************************************************************************/

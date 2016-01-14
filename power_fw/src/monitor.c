@@ -24,7 +24,7 @@
 *                                    TYPES                                    *
 ******************************************************************************/
 enum monitor_state {
-    MONITOR_IDLE,
+    MONITOR_CYCLE,
     MONITOR_OFF,
     MONITOR_ON,
     MONITOR_WAIT_BOOT
@@ -33,18 +33,25 @@ enum monitor_state {
 *                                    DATA                                     *
 ******************************************************************************/
 static volatile uint32_t activity_time;
-static enum monitor_state state;
+static volatile enum monitor_state state;
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
 static bool restoration_check(void);
 static bool activity_expired(uint32_t time);
-static void update_activity(void);
+static void update_activity_time(void);
 static bool run_failure(void);
+static void change_state(enum monitor_state s);
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
-static void update_activity(void)
+static void change_state(enum monitor_state s)
+{
+    update_activity_time();
+    state = s;
+}
+/*****************************************************************************/
+static void update_activity_time(void)
 {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
         activity_time = sys_time_get_ticks();
@@ -95,12 +102,7 @@ static bool run_failure(void)
 **/
 void moinitor_poweroff(void)
 {
-    if(state == MONITOR_WAIT_BOOT) {
-        return;
-    }
-
-    update_activity();
-    state = MONITOR_OFF;
+    change_state(MONITOR_OFF);
 }
 /*****************************************************************************/
 /**
@@ -108,26 +110,24 @@ void moinitor_poweroff(void)
 **/
 void mointor_poweron(void)
 {
-    if(state == MONITOR_WAIT_BOOT) {
-        return;
-    }
-
-    update_activity();
-
     if(registers_get(REG_MONITOR_CTL) & MONITOR_BOOT) {
-        state = MONITOR_WAIT_BOOT;
+        change_state(MONITOR_WAIT_BOOT);
     } else {
-        state = MONITOR_ON;
+        change_state(MONITOR_ON);
     }
 }
 /*****************************************************************************/
+/**
+* \brief call whenever host activity is detected
+**/
 void monitor_activity(void)
 {
-    if(state == MONITOR_WAIT_BOOT) {
-        update_activity();
-        state = MONITOR_ON;
-    } else if(state == MONITOR_ON) {
-        update_activity();
+    if((state == MONITOR_WAIT_BOOT) || (state == MONITOR_ON)) {
+        update_activity_time();
+
+        if(state == MONITOR_WAIT_BOOT) {
+            state = MONITOR_ON;
+        }
     }
 }
 /*****************************************************************************/
@@ -140,36 +140,26 @@ void monitor_state_machine(void)
 {
     switch(state)
     {
-    case MONITOR_IDLE:
+    case MONITOR_CYCLE:
+        /* we are undergoing a power-cycle and expect either a poweron
+           or poweroff notification to happen soon. */
         break;
     case MONITOR_OFF:
         if(restoration_check()) {
             board_power_event(START_MONITOR);
-            update_activity();
-
-            if(registers_get(REG_MONITOR_CTL) & MONITOR_BOOT) {
-                state = MONITOR_WAIT_BOOT;
-            } else {
-                state = MONITOR_IDLE;
-            }
+            change_state(MONITOR_CYCLE);
         }
         break;
     case MONITOR_WAIT_BOOT:
         if(boot_failure()) {
-            update_activity();
             board_power_req_cycle(START_MONITOR);
+            change_state(MONITOR_CYCLE);
         }
         break;
     case MONITOR_ON:
         if(run_failure()) {
-            update_activity();
-
-            if(registers_get(REG_MONITOR_CTL) & MONITOR_BOOT) {
-                state = MONITOR_WAIT_BOOT;
-            } else {
-                state = MONITOR_IDLE;
-            }
             board_power_req_cycle(START_MONITOR);
+            change_state(MONITOR_CYCLE);
         }
         break;
     }
