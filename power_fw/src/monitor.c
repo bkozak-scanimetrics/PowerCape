@@ -163,7 +163,12 @@ void monitor_state_machine(void)
     case MONITOR_ON:
         if(run_failure()) {
             update_activity();
-            state = MONITOR_WAIT_BOOT;
+
+            if(registers_get(REG_MONITOR_CTL) & MONITOR_BOOT) {
+                state = MONITOR_WAIT_BOOT;
+            } else {
+                state = MONITOR_IDLE;
+            }
             board_power_req_cycle(START_MONITOR);
         }
         break;
