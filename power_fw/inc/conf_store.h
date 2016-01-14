@@ -14,6 +14,7 @@
 
 #include "twi_slave.h"
 #include "registers.h"
+#include "monitor.h"
 /******************************************************************************
 *                                   DEFINES                                   *
 ******************************************************************************/
@@ -22,7 +23,7 @@
 #define CONF_STORE_DEFAULTS \
     {\
         0x00, BOARD_TYPE_BONE, (uint8_t)'A', (uint8_t)'2', TWI_SLAVE_ADDRESS, \
-        0X01, 0X03 \
+        0X01, 0X03, MONITOR_CONF_DEFAULT, MONITOR_BOOT_MINIUTES_DEFAULT \
     }
 
 #define _CONF_FUNCTIONS(n, p) \
@@ -41,6 +42,8 @@ enum conf_params {
     CONF_I2C_ADDR,
     CONF_CHG_CURRENT,
     CONF_CHG_TIMER,
+    CONF_MONITOR_CTL,
+    CONF_BOOT_MINUTES,
 
     CONF_COUNT
 };
@@ -61,5 +64,7 @@ _CONF_FUNCTIONS(stepping_value, CONF_STEPPING)
 _CONF_FUNCTIONS(i2c_address, CONF_I2C_ADDR)
 _CONF_FUNCTIONS(charge_current, CONF_CHG_CURRENT)
 _CONF_FUNCTIONS(charge_timer, CONF_CHG_TIMER)
+_CONF_FUNCTIONS(monitor_ctl, CONF_MONITOR_CTL)
+_CONF_FUNCTIONS(boot_minutes, CONF_BOOT_MINUTES)
 /*****************************************************************************/
 #endif /* CONF_STORE_H_ */

@@ -168,6 +168,12 @@ void registers_host_write( uint8_t index, uint8_t data )
         board_set_charge_timer( data );
         store_config( CONF_CHG_TIMER, data );    // TODO: interrupt context
         break;
+    case REG_MONITOR_CTL:
+        conf_store_set_monitor_ctl(data);
+        break;
+    case REG_MONITOR_BOOT_MINUTES:
+        conf_store_set_boot_minutes(data);
+        break;
 
     default:
         break;
@@ -180,17 +186,18 @@ void registers_init( void )
 {
     uint8_t t;
 
-    registers[ REG_CONTROL ]         = CONTROL_CE;
-    registers[ REG_START_ENABLE ]    = START_ALL;
-    registers[ REG_RESTART_HOURS ]   = 0;
-    registers[ REG_RESTART_MINUTES ] = 0;
-    registers[ REG_RESTART_SECONDS ] = 0;
-    registers[ REG_EXTENDED ]        = 0x69;
-    registers[ REG_CAPABILITY ]      = CAPABILITY_STATUS;
-    registers[ REG_BOARD_TYPE ]      = conf_store_get_board_type();
-    registers[ REG_BOARD_REV ]       = conf_store_get_revision_value();
-    registers[ REG_BOARD_STEP ]      = conf_store_get_stepping_value();
-    registers[REG_MONITOR_CTL]       = MONITOR_POWER_ALWAYS;
+    registers[ REG_CONTROL ]            = CONTROL_CE;
+    registers[ REG_START_ENABLE ]       = START_ALL;
+    registers[ REG_RESTART_HOURS ]      = 0;
+    registers[ REG_RESTART_MINUTES ]    = 0;
+    registers[ REG_RESTART_SECONDS ]    = 0;
+    registers[ REG_EXTENDED ]           = 0x69;
+    registers[ REG_CAPABILITY ]         = CAPABILITY_STATUS;
+    registers[ REG_BOARD_TYPE ]         = conf_store_get_board_type();
+    registers[ REG_BOARD_REV ]          = conf_store_get_revision_value();
+    registers[ REG_BOARD_STEP ]         = conf_store_get_stepping_value();
+    registers[REG_MONITOR_CTL]          = conf_store_get_monitor_ctl();
+    registers[REG_MONITOR_BOOT_MINUTES] = conf_store_get_boot_minutes();
 
     t = conf_store_get_i2c_address();
     if ( t == 0xFF ) {
