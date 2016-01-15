@@ -1,10 +1,17 @@
+/******************************************************************************
+*                                  INCLUDES                                   *
+******************************************************************************/
+#include "bb_i2c.h"
+
 #include <stdlib.h>
 #include <avr/io.h>
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
-#include "board.h"
-#include "bb_i2c.h"
 
+#include "board.h"
+/******************************************************************************
+*                                   DEFINES                                   *
+******************************************************************************/
 #define BANG_DELAY  16
 
 #define SCL_LOW     DDRD |= PIN_BB_SCL
@@ -13,8 +20,9 @@
 #define SDA_HIGH    DDRD &= ~PIN_BB_SDA
 
 #define NOP         __asm__ volatile( "nop\n\t" )
-
-
+/******************************************************************************
+*                            FUNCTION DEFINITIONS                             *
+******************************************************************************/
 static inline void delay_loop( void )
 {
     uint8_t i;
@@ -24,8 +32,7 @@ static inline void delay_loop( void )
         NOP;
     }
 }
-
-
+/*****************************************************************************/
 static inline void delay_loop2( void )
 {
     uint8_t i;
@@ -35,8 +42,7 @@ static inline void delay_loop2( void )
         NOP;
     }
 }
-
-
+/*****************************************************************************/
 /* Going to need external pull-ups to use GPIO in open-collector mode */
 void bb_i2c_init( void )
 {
@@ -48,18 +54,16 @@ void bb_i2c_init( void )
     PORTD &= ~PIN_BB_SCL;
     PORTD &= ~PIN_BB_SDA;
 }
-
-
-void bb_start( void )
+/*****************************************************************************/
+static void bb_start( void )
 {
     // Idle bus == both lines high
     SDA_LOW;
     delay_loop();
     SCL_LOW;
 }
-
-
-void bb_stop( void )
+/*****************************************************************************/
+static void bb_stop( void )
 {
     SDA_LOW;
     delay_loop();
@@ -67,9 +71,8 @@ void bb_stop( void )
     delay_loop();
     SDA_HIGH;
 }
-
-
-void bb_out( uint8_t b )
+/*****************************************************************************/
+static void bb_out( uint8_t b )
 {
     uint8_t i;
 
@@ -91,9 +94,8 @@ void bb_out( uint8_t b )
     // Release SDA
     SDA_HIGH;
 }
-
-
-uint8_t bb_in( void )
+/*****************************************************************************/
+static uint8_t bb_in( void )
 {
     uint8_t i, b = 0;
 
@@ -117,9 +119,8 @@ uint8_t bb_in( void )
     }
     return b;
 }
-
-
-uint8_t get_ack( void )
+/*****************************************************************************/
+static uint8_t get_ack( void )
 {
     uint8_t i;
 
@@ -132,9 +133,8 @@ uint8_t get_ack( void )
 
     return i;
 }
-
-
-void send_ack( void )
+/*****************************************************************************/
+static void send_ack( void )
 {
     SDA_LOW;
     NOP; NOP; NOP;
@@ -144,9 +144,8 @@ void send_ack( void )
     NOP; NOP; NOP;
     SDA_HIGH;
 }
-
-
-void send_nak( void )
+/*****************************************************************************/
+static void send_nak( void )
 {
     SDA_HIGH;
     NOP; NOP; NOP;
@@ -155,8 +154,7 @@ void send_nak( void )
     SCL_LOW;
     NOP; NOP; NOP;
 }
-
-
+/*****************************************************************************/
 uint8_t bb_i2c_read( uint8_t addr, uint8_t *buf, uint8_t len )
 {
     uint8_t rc = 0;
@@ -190,8 +188,7 @@ uint8_t bb_i2c_read( uint8_t addr, uint8_t *buf, uint8_t len )
 
     return rc;
 }
-
-
+/*****************************************************************************/
 uint8_t bb_i2c_write( uint8_t addr, uint8_t *buf, uint8_t len )
 {
     uint8_t rc = 0;
@@ -223,4 +220,4 @@ uint8_t bb_i2c_write( uint8_t addr, uint8_t *buf, uint8_t len )
 
     return rc;
 }
-
+/*****************************************************************************/
