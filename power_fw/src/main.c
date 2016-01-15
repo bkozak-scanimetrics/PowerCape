@@ -1,3 +1,6 @@
+/******************************************************************************
+*                                  INCLUDES                                   *
+******************************************************************************/
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -17,21 +20,34 @@
 #include "sys_time.h"
 #include "monitor.h"
 #include "conf_store.h"
-
+/******************************************************************************
+*                                   DEFINES                                   *
+******************************************************************************/
+#define _NAKED __attribute__((naked))
+#define _INIT3 __attribute__((section(".init3")))
+/******************************************************************************
+*                                    DATA                                     *
+******************************************************************************/
 volatile uint8_t rebootflag = 0;
 
 uint8_t mcusr __attribute__ ((section (".noinit")));
-
-void get_mcusr(void) __attribute__((naked)) __attribute__((section(".init3")));
-void get_mcusr( void )
+/******************************************************************************
+*                             FUNCTION PROTOTYPES                             *
+******************************************************************************/
+void get_mcusr(void) _NAKED _INIT3;
+static void check_charge_enable(void);
+/******************************************************************************
+*                            FUNCTION DEFINITIONS                             *
+******************************************************************************/
+void get_mcusr(void)
 {
     mcusr = MCUSR;
     MCUSR = 0;
-    wdt_enable( WDTO_2S );
+    wdt_enable(WDTO_2S);
 }
-
+/*****************************************************************************/
 // If requested, make sure CE is set. Can be disabled by ISR.
-void check_charge_enable( void )
+static void check_charge_enable(void)
 {
     if ( registers_get( REG_CONTROL ) & CONTROL_CE )
     {
@@ -39,8 +55,7 @@ void check_charge_enable( void )
         board_enable_pgood_irq();
     }
 }
-
-
+/*****************************************************************************/
 int main( void )
 {
     uint8_t oscval;
@@ -123,4 +138,4 @@ int main( void )
         }
     }
 }
-
+/*****************************************************************************/
