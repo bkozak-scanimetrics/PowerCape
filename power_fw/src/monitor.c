@@ -35,6 +35,8 @@ enum monitor_state {
 ******************************************************************************/
 static volatile uint32_t activity_time;
 static volatile enum monitor_state state;
+
+static uint32_t restore_time;
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
@@ -46,9 +48,45 @@ static void change_state(enum monitor_state s);
 static void cmd_reset(void);
 static bool halt_requested(void);
 static bool boot_failure(void);
+static void clear_restore_regs(void);
+static void setup_restore_time(void);
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
+static void clear_restore_regs(void)
+{
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        registers_set(REG_RESTART_SECONDS, 0);
+        registers_set(REG_RESTART_MINUTES, 0);
+        registers_set(REG_RESTART_HOURS, 0);
+    }
+}
+/*****************************************************************************/
+static void setup_restore_time(void)
+{
+    uint32_t seconds;
+    uint32_t minutes;
+    uint32_t hours;
+
+    if(!(registers_get(REG_MONITOR_CTL) & MONITOR_TIMED_RESTORE)) {
+        restore_time = 0;
+        clear_restore_regs();
+        return;
+    }
+
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        seconds = registers_get(REG_RESTART_SECONDS);
+        minutes = registers_get(REG_RESTART_MINUTES);
+        hours   = registers_get(REG_RESTART_HOURS);
+
+        clear_restore_regs();
+    }
+
+    restore_time  = seconds * 1;
+    restore_time += minutes * 60;
+    restore_time += hours   * 3600;
+}
+/*****************************************************************************/
 static void cmd_reset(void)
 {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
@@ -106,7 +144,10 @@ static bool activity_expired(uint32_t time)
 /*****************************************************************************/
 static bool restoration_check(void)
 {
-    if(registers_get(REG_MONITOR_CTL) & MONITOR_POWER_ALWAYS) {
+    if(restore_time){
+        return activity_expired(restore_time) &&
+               activity_expired(POWER_RESTORE_SECONDS);
+    } else if(registers_get(REG_MONITOR_CTL) & MONITOR_POWER_ALWAYS) {
         return activity_expired(POWER_RESTORE_SECONDS);
     } else {
         return false;
@@ -145,6 +186,7 @@ static bool run_failure(void)
 **/
 void moinitor_poweroff(void)
 {
+    setup_restore_time();
     change_state(MONITOR_OFF);
 }
 /*****************************************************************************/
@@ -191,7 +233,12 @@ void monitor_state_machine(void)
         break;
     case MONITOR_OFF:
         if(restoration_check()) {
-            board_power_event(START_MONITOR);
+
+            if(registers_get(REG_MONITOR_CTL) & MONITOR_TIMED_RESTORE) {
+                board_power_event(START_TIMEOUT);
+            } else {
+                board_power_event(START_MONITOR);
+            }
             change_state(MONITOR_CYCLE);
         }
         break;
@@ -205,7 +252,7 @@ void monitor_state_machine(void)
         if(halt_requested()) {
             change_state(MONITOR_WAIT_HALT);
         } else if(run_failure()) {
-            board_power_req_cycle(START_MONITOR);
+            board_power_req_cycle(START_WDT);
             change_state(MONITOR_CYCLE);
         }
         break;

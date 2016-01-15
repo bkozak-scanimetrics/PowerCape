@@ -21,28 +21,9 @@
 ******************************************************************************/
 static volatile uint32_t system_ticks;
 static volatile uint32_t rtc_offset;
-
-static volatile uint32_t countdown;
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
-/**
-* \brief starts the system countdown (until power reset)
-**/
-uint8_t sys_time_begin_countdown(void)
-{
-    countdown = (uint32_t)registers_get( REG_RESTART_HOURS ) * 3600;
-    countdown += (uint32_t)registers_get( REG_RESTART_MINUTES ) * 60;
-    countdown += (uint32_t)registers_get( REG_RESTART_SECONDS );
-
-    if ( countdown == 0 )
-    {
-        registers_clear_mask( REG_START_ENABLE, START_TIMEOUT );
-        return 0;
-    }
-    return 1;
-}
-/*****************************************************************************/
 /**
 * \brief initilize timer2
 **/
@@ -103,16 +84,6 @@ ISR( TIMER2_OVF_vect, ISR_BLOCK )
     #if DEBUG
     PORTB ^= PIN_LED0;
     #endif
-
-    // Check for startup conditions
-    if ( countdown != 0 )
-    {
-        countdown--;
-        if ( countdown == 0 )
-        {
-            board_power_event( START_TIMEOUT );
-        }
-    }
 
     // Forced power-off check
     if ( ( PIND & PIN_BUTTON ) == 0 )

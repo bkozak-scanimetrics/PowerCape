@@ -81,6 +81,7 @@ enum registers_type {
 #define MONITOR_BOOT            0x02
 #define MONITOR_RUN             0x04
 #define MONITOR_HALT            0x08
+#define MONITOR_TIMED_RESTORE   0x10
 
 // Monitor Command
 #define MONITOR_CMD_OK          0x00

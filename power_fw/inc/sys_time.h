@@ -13,7 +13,6 @@
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
-uint8_t sys_time_begin_countdown(void);
 void sys_time_init(void);
 uint32_t sys_time_get_ticks(void);
 uint32_t sys_time_get_time(void);

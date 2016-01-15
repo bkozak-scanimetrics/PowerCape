@@ -28,7 +28,6 @@ void sys_notify_off(void)
 {
     twi_slave_stop();
     board_enable_interrupt(registers_get(REG_START_ENABLE));
-    sys_time_begin_countdown();
 
     moinitor_poweroff();
 }

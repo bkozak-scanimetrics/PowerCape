@@ -139,7 +139,6 @@ void registers_host_write( uint8_t index, uint8_t data )
     case REG_RESTART_MINUTES:
     case REG_RESTART_SECONDS:
         registers[ index ] = data;
-        registers_set_mask( REG_START_ENABLE, START_TIMEOUT );
         return;
 
     case REG_SECONDS_3:
