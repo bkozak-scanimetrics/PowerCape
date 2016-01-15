@@ -196,6 +196,7 @@ void registers_init( void )
 	registers[ REG_RESTART_SECONDS ]    = 0;
 	registers[ REG_EXTENDED ]           = 0x69;
 	registers[ REG_CAPABILITY ]         = CAPABILITY_STATUS;
+	registers[REG_MONITOR_CMD]          = MONITOR_CMD_ERR;
 	registers[ REG_BOARD_TYPE ]         = conf_store_get_board_type();
 	registers[ REG_BOARD_REV ]          = conf_store_get_revision_value();
 	registers[ REG_BOARD_STEP ]         = conf_store_get_stepping_value();
