@@ -18,17 +18,17 @@
 *                                    DATA                                     *
 ******************************************************************************/
 static const uint8_t wiper_value[ 11 ] = {
-    0,      // +0
-    13,     // +10k
-    26,     // +20k
-    38,     // +30k
-    51,     // +40k
-    64,     // +50k
-    76,     // +60k
-    89,     // +70k
-    102,    // +80k
-    114,    // +90k
-    127,    // +100k (max)
+	0,      // +0
+	13,     // +10k
+	26,     // +20k
+	38,     // +30k
+	51,     // +40k
+	64,     // +50k
+	76,     // +60k
+	89,     // +70k
+	102,    // +80k
+	114,    // +90k
+	127,    // +100k (max)
 };
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
@@ -38,15 +38,15 @@ static const uint8_t wiper_value[ 11 ] = {
 **/
 void board_poweron( void )
 {
-    PORTD |= PIN_D;
-    __asm__ volatile( "nop\n\t" );
-    PORTD |= PIN_CP;
-    __asm__ volatile( "nop\n\t" );
-    PORTD &= ~PIN_CP;
-    PORTD &= ~PIN_D;
+	PORTD |= PIN_D;
+	__asm__ volatile( "nop\n\t" );
+	PORTD |= PIN_CP;
+	__asm__ volatile( "nop\n\t" );
+	PORTD &= ~PIN_CP;
+	PORTD &= ~PIN_D;
 
 #if DEBUG
-    board_led_on( 1 );
+	board_led_on( 1 );
 #endif
 }
 /*****************************************************************************/
@@ -55,13 +55,13 @@ void board_poweron( void )
 **/
 void board_poweroff( void )
 {
-    PORTD &= ~PIN_D;
-    __asm__ volatile( "nop\n\t" );
-    PORTD |= PIN_CP;
-    __asm__ volatile( "nop\n\t" );
-    PORTD &= ~PIN_CP;
+	PORTD &= ~PIN_D;
+	__asm__ volatile( "nop\n\t" );
+	PORTD |= PIN_CP;
+	__asm__ volatile( "nop\n\t" );
+	PORTD &= ~PIN_CP;
 #ifdef DEBUG
-    board_led_off( 1 );
+	board_led_off( 1 );
 #endif
 }
 /*****************************************************************************/
@@ -70,7 +70,7 @@ void board_poweroff( void )
 **/
 void board_led_on( uint8_t led )
 {
-    PORTB |= led == 0 ? PIN_LED0 : PIN_LED1;
+	PORTB |= led == 0 ? PIN_LED0 : PIN_LED1;
 }
 /*****************************************************************************/
 /**
@@ -78,7 +78,7 @@ void board_led_on( uint8_t led )
 **/
 void board_led_off( uint8_t led )
 {
-    PORTB &= led == 0 ? ~PIN_LED0 : ~PIN_LED1;
+	PORTB &= led == 0 ? ~PIN_LED0 : ~PIN_LED1;
 }
 /*****************************************************************************/
 /**
@@ -86,11 +86,11 @@ void board_led_off( uint8_t led )
 **/
 void board_ce( uint8_t enable )
 {
-    if (enable) {
-        DDRC &= ~PIN_CE;
-    } else {
-        DDRC |= PIN_CE;
-    }
+	if (enable) {
+		DDRC &= ~PIN_CE;
+	} else {
+		DDRC |= PIN_CE;
+	}
 }
 /*****************************************************************************/
 /**
@@ -98,7 +98,7 @@ void board_ce( uint8_t enable )
 **/
 uint8_t board_3v3(void)
 {
-    return (PIND & PIN_DETECT);
+	return (PIND & PIN_DETECT);
 }
 /*****************************************************************************/
 /**
@@ -106,10 +106,10 @@ uint8_t board_3v3(void)
 **/
 void board_hold_reset( void )
 {
-    if ( registers_get( REG_BOARD_TYPE ) == BOARD_TYPE_BONE ) {
-        PORTD &= ~PIN_DETECT;
-        DDRD |= PIN_DETECT;
-    }
+	if ( registers_get( REG_BOARD_TYPE ) == BOARD_TYPE_BONE ) {
+		PORTD &= ~PIN_DETECT;
+		DDRD |= PIN_DETECT;
+	}
 }
 /*****************************************************************************/
 /**
@@ -117,9 +117,9 @@ void board_hold_reset( void )
 **/
 void board_release_reset( void )
 {
-    if (registers_get( REG_BOARD_TYPE ) == BOARD_TYPE_BONE) {
-        DDRD &= ~PIN_DETECT;
-    }
+	if (registers_get( REG_BOARD_TYPE ) == BOARD_TYPE_BONE) {
+		DDRD &= ~PIN_DETECT;
+	}
 }
 /*****************************************************************************/
 /**
@@ -127,19 +127,19 @@ void board_release_reset( void )
 **/
 uint8_t board_pgood( void )
 {
-    uint8_t rc = 0;
+	uint8_t rc = 0;
 
-    if ( PINC & PIN_PGOOD )
-    {
-        registers_clear_mask( REG_STATUS, STATUS_POWER_GOOD );
-    }
-    else
-    {
-        registers_set_mask( REG_STATUS, STATUS_POWER_GOOD );
-        rc = 1;
-    }
+	if ( PINC & PIN_PGOOD )
+	{
+		registers_clear_mask( REG_STATUS, STATUS_POWER_GOOD );
+	}
+	else
+	{
+		registers_set_mask( REG_STATUS, STATUS_POWER_GOOD );
+		rc = 1;
+	}
 
-    return rc;
+	return rc;
 }
 /*****************************************************************************/
 /**
@@ -149,9 +149,9 @@ uint8_t board_pgood( void )
 **/
 void board_enable_pgood_irq( void )
 {
-    // Enable PGOOD interrupt
-    PCMSK1 |= ( PIN_PGOOD );
-    PCICR  |= ( 1 << PCIE1 );
+	// Enable PGOOD interrupt
+	PCMSK1 |= ( PIN_PGOOD );
+	PCICR  |= ( 1 << PCIE1 );
 }
 /*****************************************************************************/
 /**
@@ -162,17 +162,17 @@ void board_enable_pgood_irq( void )
 **/
 void board_enable_interrupt( uint8_t mask )
 {
-    if ( mask & START_EXTERNAL )
-    {
-        PCMSK0 |= ( PIN_OPTO );
-        PCICR  |= ( 1 << PCIE0 );
-    }
+	if ( mask & START_EXTERNAL )
+	{
+		PCMSK0 |= ( PIN_OPTO );
+		PCICR  |= ( 1 << PCIE0 );
+	}
 
-    if ( mask & START_BUTTON )
-    {
-        PCMSK2 |= ( PIN_BUTTON );
-        PCICR  |= ( 1 << PCIE2 );
-    }
+	if ( mask & START_BUTTON )
+	{
+		PCMSK2 |= ( PIN_BUTTON );
+		PCICR  |= ( 1 << PCIE2 );
+	}
 }
 /*****************************************************************************/
 /**
@@ -183,17 +183,17 @@ void board_enable_interrupt( uint8_t mask )
 **/
 void board_disable_interrupt( uint8_t mask )
 {
-    if ( mask & START_EXTERNAL )
-    {
-        PCMSK0 &= ~( PIN_OPTO );
-        PCICR  &= ~( 1 << PCIE0 );
-    }
+	if ( mask & START_EXTERNAL )
+	{
+		PCMSK0 &= ~( PIN_OPTO );
+		PCICR  &= ~( 1 << PCIE0 );
+	}
 
-    if ( mask & START_BUTTON )
-    {
-        PCMSK2 &= ~( PIN_BUTTON );
-        PCICR  &= ~( 1 << PCIE2 );
-    }
+	if ( mask & START_BUTTON )
+	{
+		PCMSK2 &= ~( PIN_BUTTON );
+		PCICR  &= ~( 1 << PCIE2 );
+	}
 }
 /*****************************************************************************/
 /**
@@ -201,24 +201,24 @@ void board_disable_interrupt( uint8_t mask )
 **/
 void board_set_charge_current( uint8_t thirds )
 {
-    uint8_t pins;
+	uint8_t pins;
 
-    if ( ( registers_get( REG_BOARD_REV ) == 'A' ) &&
-         ( registers_get( REG_BOARD_STEP ) >= '2' ) )
-    {
-        DDRC &= ~( PIN_ISET2 | PIN_ISET3 );
-        PORTC &= ~( PIN_ISET2 | PIN_ISET3 );
+	if ( ( registers_get( REG_BOARD_REV ) == 'A' ) &&
+		 ( registers_get( REG_BOARD_STEP ) >= '2' ) )
+	{
+		DDRC &= ~( PIN_ISET2 | PIN_ISET3 );
+		PORTC &= ~( PIN_ISET2 | PIN_ISET3 );
 
-        switch ( thirds )
-        {
-            case 3:  pins = ( PIN_ISET2 | PIN_ISET3 ); break;
-            case 2:  pins = PIN_ISET2; break;
-            case 1:
-            default: pins = PIN_ISET3; break;
-            case 0:  pins = 0; break;
-        }
-        DDRC |= pins;
-    }
+		switch ( thirds )
+		{
+			case 3:  pins = ( PIN_ISET2 | PIN_ISET3 ); break;
+			case 2:  pins = PIN_ISET2; break;
+			case 1:
+			default: pins = PIN_ISET3; break;
+			case 0:  pins = 0; break;
+		}
+		DDRC |= pins;
+	}
 }
 /*****************************************************************************/
 /**
@@ -226,23 +226,23 @@ void board_set_charge_current( uint8_t thirds )
 **/
 void board_set_charge_timer( uint8_t hours )
 {
-    uint8_t b;
+	uint8_t b;
 
-    if ( ( registers_get( REG_BOARD_REV ) == 'A' ) &&
-         ( registers_get( REG_BOARD_STEP ) >= '2' ) )
-    {
-        if ( hours > 10 )
-        {
-            hours = 10;
-        }
+	if ( ( registers_get( REG_BOARD_REV ) == 'A' ) &&
+		 ( registers_get( REG_BOARD_STEP ) >= '2' ) )
+	{
+		if ( hours > 10 )
+		{
+			hours = 10;
+		}
 
-        b = wiper_value[ hours - 3 ];
-        if ( bb_i2c_write( MCP_ADDR, &b, 1 ) )
-        {
-            // indicate error
-            registers_set( REG_I2C_TCHARGE, 0xEE );
-        }
-    }
+		b = wiper_value[ hours - 3 ];
+		if ( bb_i2c_write( MCP_ADDR, &b, 1 ) )
+		{
+			// indicate error
+			registers_set( REG_I2C_TCHARGE, 0xEE );
+		}
+	}
 }
 /*****************************************************************************/
 /**
@@ -250,51 +250,53 @@ void board_set_charge_timer( uint8_t hours )
 **/
 void board_gpio_config( void )
 {
-    // Enable pull-ups on input pins to keep unconnected
-    // ones from floating
+	// Enable pull-ups on input pins to keep unconnected
+	// ones from floating
 
-    // engage all PORTB pull-ups
-    PORTB = (uint8_t)(~(PIN_LED1 | PIN_LED0 | PIN_XTAL1 | PIN_XTAL2));
-    DDRB  = ( PIN_LED1 | PIN_LED0 );
+	// engage all PORTB pull-ups
+	PORTB = (uint8_t)(~(PIN_LED1 | PIN_LED0 | PIN_XTAL1 | PIN_XTAL2));
+	DDRB  = ( PIN_LED1 | PIN_LED0 );
 
-    PORTC  = ~( PIN_SDA | PIN_SCL | PIN_CE | PIN_ISET2 | PIN_ISET3 );
-    DDRC   = PIN_ISET3;
+	PORTC  = ~( PIN_SDA | PIN_SCL | PIN_CE | PIN_ISET2 | PIN_ISET3 );
+	DDRC   = PIN_ISET3;
 
-    PORTD = (uint8_t)(~(PIN_CP | PIN_D | PIN_DETECT | PIN_BB_SCL | PIN_BB_SDA));
-    DDRD  = ( PIN_CP | PIN_D );
+	PORTD = (uint8_t)(~(
+		PIN_CP | PIN_D | PIN_DETECT | PIN_BB_SCL | PIN_BB_SDA
+	));
+	DDRD  = ( PIN_CP | PIN_D );
 
-    board_enable_pgood_irq();
+	board_enable_pgood_irq();
 }
 /*****************************************************************************/
 // OPTO
 ISR( PCINT0_vect, ISR_BLOCK )
 {
-    PCMSK0 &= ~PIN_OPTO;
+	PCMSK0 &= ~PIN_OPTO;
 
-    if ( ( PINB & PIN_OPTO ) == 0 )
-    {
-        board_power_event( START_EXTERNAL );
-    }
+	if ( ( PINB & PIN_OPTO ) == 0 )
+	{
+		board_power_event( START_EXTERNAL );
+	}
 }
 /*****************************************************************************/
 // Power Good oscillation fix
 ISR( PCINT1_vect, ISR_BLOCK )
 {
-    if ( ( PINC & PIN_PGOOD ) == 0 )
-    {
-        PCMSK1 &= ~PIN_PGOOD;
-        board_ce( 0 );
-    }
+	if ( ( PINC & PIN_PGOOD ) == 0 )
+	{
+		PCMSK1 &= ~PIN_PGOOD;
+		board_ce( 0 );
+	}
 }
 /*****************************************************************************/
 // Button
 ISR( PCINT2_vect, ISR_BLOCK )
 {
-    if ( ( PIND & PIN_BUTTON ) == 0 )
-    {
-        PCMSK2 &= ~PIN_BUTTON;
-        board_power_event( START_BUTTON );
-    }
+	if ( ( PIND & PIN_BUTTON ) == 0 )
+	{
+		PCMSK2 &= ~PIN_BUTTON;
+		board_power_event( START_BUTTON );
+	}
 }
 /*****************************************************************************/
 /**
@@ -302,10 +304,11 @@ ISR( PCINT2_vect, ISR_BLOCK )
 **/
 void board_init( void )
 {
-    board_gpio_config();
-    PRR = ( ( 1 << PRTIM0 ) | ( 1 << PRTIM1 ) | ( 1 << PRSPI ) | ( 1 << PRUSART0 ) | ( 1 << PRADC ) );
-    sys_time_init();
-    bb_i2c_init();
+	board_gpio_config();
+	PRR = (1 << PRTIM0) | (1 << PRTIM1) | (1 << PRSPI) | (1 << PRUSART0)
+	      | (1 << PRADC);
+	sys_time_init();
+	bb_i2c_init();
 }
 /*****************************************************************************/
 /**
@@ -313,10 +316,10 @@ void board_init( void )
 **/
 void board_stop( void )
 {
-    TCCR2B = 0;
-    TCCR2A = 0;
-    TCNT2 = 0;
-    PCMSK0 = PCMSK1 = PCMSK2 = 0;
-    DDRB = DDRC = DDRD = 0;
+	TCCR2B = 0;
+	TCCR2A = 0;
+	TCNT2 = 0;
+	PCMSK0 = PCMSK1 = PCMSK2 = 0;
+	DDRB = DDRC = DDRD = 0;
 }
 /*****************************************************************************/

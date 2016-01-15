@@ -24,11 +24,11 @@
 *                                    TYPES                                    *
 ******************************************************************************/
 enum monitor_state {
-    MONITOR_CYCLE,
-    MONITOR_OFF,
-    MONITOR_ON,
-    MONITOR_WAIT_BOOT,
-    MONITOR_WAIT_HALT
+	MONITOR_CYCLE,
+	MONITOR_OFF,
+	MONITOR_ON,
+	MONITOR_WAIT_BOOT,
+	MONITOR_WAIT_HALT
 };
 /******************************************************************************
 *                                    DATA                                     *
@@ -50,138 +50,145 @@ static bool halt_requested(void);
 static bool boot_failure(void);
 static void clear_restore_regs(void);
 static void setup_restore_time(void);
+static bool timed_restore_on(void);
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
+static bool timed_restore_on(void)
+{
+	return registers_get(REG_MONITOR_CTL) & MONITOR_TIMED_RESTORE;
+}
+/*****************************************************************************/
 static void clear_restore_regs(void)
 {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        registers_set(REG_RESTART_SECONDS, 0);
-        registers_set(REG_RESTART_MINUTES, 0);
-        registers_set(REG_RESTART_HOURS, 0);
-    }
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		registers_set(REG_RESTART_SECONDS, 0);
+		registers_set(REG_RESTART_MINUTES, 0);
+		registers_set(REG_RESTART_HOURS, 0);
+	}
 }
 /*****************************************************************************/
 static void setup_restore_time(void)
 {
-    uint32_t seconds;
-    uint32_t minutes;
-    uint32_t hours;
+	uint32_t seconds;
+	uint32_t minutes;
+	uint32_t hours;
 
-    if(!(registers_get(REG_MONITOR_CTL) & MONITOR_TIMED_RESTORE)) {
-        restore_time = 0;
-        clear_restore_regs();
-        return;
-    }
+	if(!(registers_get(REG_MONITOR_CTL) & MONITOR_TIMED_RESTORE)) {
+		restore_time = 0;
+		clear_restore_regs();
+		return;
+	}
 
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        seconds = registers_get(REG_RESTART_SECONDS);
-        minutes = registers_get(REG_RESTART_MINUTES);
-        hours   = registers_get(REG_RESTART_HOURS);
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		seconds = registers_get(REG_RESTART_SECONDS);
+		minutes = registers_get(REG_RESTART_MINUTES);
+		hours   = registers_get(REG_RESTART_HOURS);
 
-        clear_restore_regs();
-    }
+		clear_restore_regs();
+	}
 
-    restore_time  = seconds * 1;
-    restore_time += minutes * 60;
-    restore_time += hours   * 3600;
+	restore_time  = seconds * 1;
+	restore_time += minutes * 60;
+	restore_time += hours   * 3600;
 }
 /*****************************************************************************/
 static void cmd_reset(void)
 {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        if(registers_get(REG_MONITOR_CMD)) {
-            registers_set(REG_MONITOR_CMD, MONITOR_CMD_ERR);
-        }
-    }
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		if(registers_get(REG_MONITOR_CMD)) {
+			registers_set(REG_MONITOR_CMD, MONITOR_CMD_ERR);
+		}
+	}
 }
 /*****************************************************************************/
 static bool halt_requested(void)
 {
-    bool ret = false;
+	bool ret = false;
+	bool ok;
 
-    uint8_t cmd;
-    uint8_t code;
+	uint8_t cmd;
+	uint8_t code;
 
-    if(registers_get(REG_MONITOR_CTL) & MONITOR_HALT) {
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+	if(registers_get(REG_MONITOR_CTL) & MONITOR_HALT) {
+		ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
 
-            cmd = registers_get(REG_MONITOR_CMD);
-            ret = (cmd == MONITOR_CMD_HALT);
+			cmd = registers_get(REG_MONITOR_CMD);
+			ret = (cmd == MONITOR_CMD_HALT);
+			ok = (ret || !cmd);
+			code = ok ? MONITOR_CMD_OK : MONITOR_CMD_ERR;
+			registers_set(REG_MONITOR_CMD, code);
+		}
+	} else {
+		cmd_reset();
+	}
 
-            code = (ret || !cmd) ? MONITOR_CMD_OK : MONITOR_CMD_ERR;
-            registers_set(REG_MONITOR_CMD, code);
-        }
-    } else {
-        cmd_reset();
-    }
-
-    return ret;
+	return ret;
 }
 /*****************************************************************************/
 static void change_state(enum monitor_state s)
 {
-    update_activity_time();
-    state = s;
+	update_activity_time();
+	state = s;
 }
 /*****************************************************************************/
 static void update_activity_time(void)
 {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        activity_time = sys_time_get_ticks();
-    }
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		activity_time = sys_time_get_ticks();
+	}
 }
 /*****************************************************************************/
 static bool activity_expired(uint32_t time)
 {
-    uint32_t tmp;
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        tmp = activity_time;
-    }
+	uint32_t tmp;
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		tmp = activity_time;
+	}
 
-    return (sys_time_get_ticks() - tmp) >= time;
+	return (sys_time_get_ticks() - tmp) >= time;
 }
 /*****************************************************************************/
 static bool restoration_check(void)
 {
-    if(restore_time){
-        return activity_expired(restore_time) &&
-               activity_expired(POWER_RESTORE_SECONDS);
-    } else if(registers_get(REG_MONITOR_CTL) & MONITOR_POWER_ALWAYS) {
-        return activity_expired(POWER_RESTORE_SECONDS);
-    } else if(registers_get(REG_MONITOR_CTL) & MONITOR_POWER_PGOOD) {
-        return board_power_state_pgood() &&
-               activity_expired(POWER_RESTORE_SECONDS);
-    } else {
-        return false;
-    }
+	if(restore_time){
+		return activity_expired(restore_time) &&
+			   activity_expired(POWER_RESTORE_SECONDS);
+	} else if(registers_get(REG_MONITOR_CTL) & MONITOR_POWER_ALWAYS) {
+		return activity_expired(POWER_RESTORE_SECONDS);
+	} else if(registers_get(REG_MONITOR_CTL) & MONITOR_POWER_PGOOD) {
+		return board_power_state_pgood() &&
+			   activity_expired(POWER_RESTORE_SECONDS);
+	} else {
+		return false;
+	}
 }
 /*****************************************************************************/
 static bool halt_failure(void)
 {
-    uint32_t timeout = (1 + registers_get(REG_MONITOR_HALT_MINUTES)) * 60U;
+	uint32_t timeout = (1 + registers_get(REG_MONITOR_HALT_MINUTES)) * 60U;
 
-    return activity_expired(timeout);
+	return activity_expired(timeout);
 }
 /*****************************************************************************/
 static bool boot_failure(void)
 {
-    uint32_t timeout = (1 + registers_get(REG_MONITOR_BOOT_MINUTES)) * 60U;
+	uint32_t timeout = (1 + registers_get(REG_MONITOR_BOOT_MINUTES)) * 60U;
 
-    return activity_expired(timeout);
+	return activity_expired(timeout);
 }
 /*****************************************************************************/
 static bool run_failure(void)
 {
-    uint32_t timeout;
+	uint32_t timeout;
 
-    if(!(registers_get(REG_MONITOR_CTL) & MONITOR_RUN)) {
-        return false;
-    }
+	if(!(registers_get(REG_MONITOR_CTL) & MONITOR_RUN)) {
+		return false;
+	}
 
-    timeout = (1 + registers_get(REG_MONITOR_RUN_SECONDS));
+	timeout = (1 + registers_get(REG_MONITOR_RUN_SECONDS));
 
-    return activity_expired(timeout);
+	return activity_expired(timeout);
 }
 /*****************************************************************************/
 /**
@@ -189,8 +196,8 @@ static bool run_failure(void)
 **/
 void moinitor_poweroff(void)
 {
-    setup_restore_time();
-    change_state(MONITOR_OFF);
+	setup_restore_time();
+	change_state(MONITOR_OFF);
 }
 /*****************************************************************************/
 /**
@@ -198,13 +205,13 @@ void moinitor_poweroff(void)
 **/
 void mointor_poweron(void)
 {
-    cmd_reset();
+	cmd_reset();
 
-    if(registers_get(REG_MONITOR_CTL) & MONITOR_BOOT) {
-        change_state(MONITOR_WAIT_BOOT);
-    } else {
-        change_state(MONITOR_ON);
-    }
+	if(registers_get(REG_MONITOR_CTL) & MONITOR_BOOT) {
+		change_state(MONITOR_WAIT_BOOT);
+	} else {
+		change_state(MONITOR_ON);
+	}
 }
 /*****************************************************************************/
 /**
@@ -212,13 +219,13 @@ void mointor_poweron(void)
 **/
 void monitor_activity(void)
 {
-    if((state == MONITOR_WAIT_BOOT) || (state == MONITOR_ON)) {
-        update_activity_time();
+	if((state == MONITOR_WAIT_BOOT) || (state == MONITOR_ON)) {
+		update_activity_time();
 
-        if(state == MONITOR_WAIT_BOOT) {
-            state = MONITOR_ON;
-        }
-    }
+		if(state == MONITOR_WAIT_BOOT) {
+			state = MONITOR_ON;
+		}
+	}
 }
 /*****************************************************************************/
 /**
@@ -228,43 +235,42 @@ void monitor_activity(void)
 **/
 void monitor_state_machine(void)
 {
-    switch(state)
-    {
-    case MONITOR_CYCLE:
-        /* we are undergoing a power-cycle and expect either a poweron
-           or poweroff notification to happen soon. */
-        break;
-    case MONITOR_OFF:
-        if(restoration_check()) {
-
-            if(registers_get(REG_MONITOR_CTL) & MONITOR_TIMED_RESTORE) {
-                board_power_event(START_TIMEOUT);
-            } else {
-                board_power_event(START_MONITOR);
-            }
-            change_state(MONITOR_CYCLE);
-        }
-        break;
-    case MONITOR_WAIT_BOOT:
-        if(boot_failure()) {
-            board_power_req_cycle(START_MONITOR);
-            change_state(MONITOR_CYCLE);
-        }
-        break;
-    case MONITOR_ON:
-        if(halt_requested()) {
-            change_state(MONITOR_WAIT_HALT);
-        } else if(run_failure()) {
-            board_power_req_cycle(START_WDT);
-            change_state(MONITOR_CYCLE);
-        }
-        break;
-    case MONITOR_WAIT_HALT:
-        if(halt_failure()) {
-            board_power_req_powerdown();
-            change_state(MONITOR_CYCLE);
-        }
-        break;
-    }
+	switch(state)
+	{
+	case MONITOR_CYCLE:
+		/* we are undergoing a power-cycle and expect either a poweron
+		   or poweroff notification to happen soon. */
+		break;
+	case MONITOR_OFF:
+		if(restoration_check()) {
+			if(timed_restore_on()) {
+				board_power_event(START_TIMEOUT);
+			} else {
+				board_power_event(START_MONITOR);
+			}
+			change_state(MONITOR_CYCLE);
+		}
+		break;
+	case MONITOR_WAIT_BOOT:
+		if(boot_failure()) {
+			board_power_req_cycle(START_MONITOR);
+			change_state(MONITOR_CYCLE);
+		}
+		break;
+	case MONITOR_ON:
+		if(halt_requested()) {
+			change_state(MONITOR_WAIT_HALT);
+		} else if(run_failure()) {
+			board_power_req_cycle(START_WDT);
+			change_state(MONITOR_CYCLE);
+		}
+		break;
+	case MONITOR_WAIT_HALT:
+		if(halt_failure()) {
+			board_power_req_powerdown();
+			change_state(MONITOR_CYCLE);
+		}
+		break;
+	}
 }
 /*****************************************************************************/

@@ -8,34 +8,34 @@
 *                                    TYPES                                    *
 ******************************************************************************/
 enum registers_type {
-    REG_MCUSR,                  // 0 - AVR register
-    REG_OSCCAL,                 // 1 - AVR register
-    REG_STATUS,                 // 2
-    REG_CONTROL,                // 3
-    REG_START_ENABLE,           // 4
-    REG_START_REASON,           // 5
-    REG_RESTART_HOURS,          // 6    Countdown hours
-    REG_RESTART_MINUTES,        // 7    Countdown minutes
-    REG_RESTART_SECONDS,        // 8    Countdown seconds
-    REG_SECONDS_0,              // 9    Uptime counter/clock
-    REG_SECONDS_1,              // 10   "
-    REG_SECONDS_2,              // 11   "
-    REG_SECONDS_3,              // 12   "
-    REG_EXTENDED,               // 13   Indicator that extended register set follows
-    REG_CAPABILITY,             // 14   Firmware version/feature "level"
-    REG_BOARD_TYPE,             // 15   Board type (ie: BeagleBone, Pi, etc.)
-    REG_BOARD_REV,              // 16   Hardware revision (if known) in ASCII (ie: 'A')
-    REG_BOARD_STEP,             // 17   Hardware stepping (if known) in ASCII (ie: '1')
-    REG_I2C_ADDRESS,            // 18   Slave address to use on I2C interface
-    REG_I2C_ICHARGE,            // 19   Charge current (0-3)/3 amp
-    REG_I2C_TCHARGE,            // 20   Charger timer in hours (3-10)
-    REG_MONITOR_CTL,            // 21
-    REG_MONITOR_CMD,            // 22
-    REG_MONITOR_BOOT_MINUTES,   // 23
-    REG_MONITOR_RUN_SECONDS,    // 24
-    REG_MONITOR_HALT_MINUTES,   // 25
+	REG_MCUSR,                  // 0 - AVR register
+	REG_OSCCAL,                 // 1 - AVR register
+	REG_STATUS,                 // 2
+	REG_CONTROL,                // 3
+	REG_START_ENABLE,           // 4
+	REG_START_REASON,           // 5
+	REG_RESTART_HOURS,          // 6    Countdown hours
+	REG_RESTART_MINUTES,        // 7    Countdown minutes
+	REG_RESTART_SECONDS,        // 8    Countdown seconds
+	REG_SECONDS_0,              // 9    Uptime counter/clock
+	REG_SECONDS_1,              // 10   "
+	REG_SECONDS_2,              // 11   "
+	REG_SECONDS_3,              // 12   "
+	REG_EXTENDED,               // 13   Indicator that extended register set follows
+	REG_CAPABILITY,             // 14   Firmware version/feature "level"
+	REG_BOARD_TYPE,             // 15   Board type (ie: BeagleBone, Pi, etc.)
+	REG_BOARD_REV,              // 16   Hardware revision (if known) in ASCII (ie: 'A')
+	REG_BOARD_STEP,             // 17   Hardware stepping (if known) in ASCII (ie: '1')
+	REG_I2C_ADDRESS,            // 18   Slave address to use on I2C interface
+	REG_I2C_ICHARGE,            // 19   Charge current (0-3)/3 amp
+	REG_I2C_TCHARGE,            // 20   Charger timer in hours (3-10)
+	REG_MONITOR_CTL,            // 21
+	REG_MONITOR_CMD,            // 22
+	REG_MONITOR_BOOT_MINUTES,   // 23
+	REG_MONITOR_RUN_SECONDS,    // 24
+	REG_MONITOR_HALT_MINUTES,   // 25
 
-    NUM_REGISTERS
+	NUM_REGISTERS
 };
 /******************************************************************************
 *                                   DEFINES                                   *

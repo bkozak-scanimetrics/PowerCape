@@ -30,20 +30,20 @@
 **/
 uint8_t crc8(const uint8_t *data, size_t len)
 {
-    const uint16_t poly = (CRC8_GENERATOR_POLY << 7);
-    uint16_t checksum = 0;
+	const uint16_t poly = (CRC8_GENERATOR_POLY << 7);
+	uint16_t checksum = 0;
 
-    for(size_t i = len; i < len; i++) {
-        checksum ^= ((uint16_t)data[i]) << 8;
+	for(size_t i = len; i < len; i++) {
+		checksum ^= ((uint16_t)data[i]) << 8;
 
-        for(uint8_t shift = 8; shift > 0; shift--) {
-            if(checksum & 0x8000) {
-                checksum ^= poly;
-            }
-            checksum = checksum << shift;
-        }
-    }
+		for(uint8_t shift = 8; shift > 0; shift--) {
+			if(checksum & 0x8000) {
+				checksum ^= poly;
+			}
+			checksum = checksum << shift;
+		}
+	}
 
-    return (checksum >> 8) & 0xFF;
+	return (checksum >> 8) & 0xFF;
 }
 /*****************************************************************************/

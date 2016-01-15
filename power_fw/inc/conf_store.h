@@ -21,36 +21,36 @@
 #define CONF_STORE_EEPROM_START ((uint8_t*)1)
 
 #define CONF_STORE_DEFAULTS \
-    { \
-        0x00, BOARD_TYPE_BONE, (uint8_t)'A', (uint8_t)'2', TWI_SLAVE_ADDRESS, \
-        0X01, 0X03, START_ALL, MONITOR_CONF_DEFAULT, \
-        MONITOR_BOOT_MINUTES_DEFAULT, MONITOR_RUN_SECONDS_DEFAULT, \
-        MONITOR_HALT_MINUTES_DEFAULT \
-    }
+	{ \
+		0x00, BOARD_TYPE_BONE, (uint8_t)'A', (uint8_t)'2', \
+		TWI_SLAVE_ADDRESS, 0X01, 0X03, START_ALL, \
+		MONITOR_CONF_DEFAULT, MONITOR_BOOT_MINUTES_DEFAULT, \
+		MONITOR_RUN_SECONDS_DEFAULT, MONITOR_HALT_MINUTES_DEFAULT \
+	}
 
 #define _CONF_FUNCTIONS(n, p) \
-    static inline uint8_t conf_store_get_##n(void) \
-        {return read_config(p);} \
-    static inline void conf_store_set_##n(uint8_t v) \
-        {store_config(p, v);}
+	static inline uint8_t conf_store_get_##n(void) \
+		{return read_config(p);} \
+	static inline void conf_store_set_##n(uint8_t v) \
+		{store_config(p, v);}
 /******************************************************************************
 *                                    ENUMS                                    *
 ******************************************************************************/
 enum conf_params {
-    CONF_CALIBRATION,
-    CONF_BOARD,
-    CONF_REVISION,
-    CONF_STEPPING,
-    CONF_I2C_ADDR,
-    CONF_CHG_CURRENT,
-    CONF_CHG_TIMER,
-    CONF_START_EN,
-    CONF_MONITOR_CTL,
-    CONF_BOOT_MINUTES,
-    CONF_RUN_SECONDS,
-    CONF_HALT_MINUTES,
+	CONF_CALIBRATION,
+	CONF_BOARD,
+	CONF_REVISION,
+	CONF_STEPPING,
+	CONF_I2C_ADDR,
+	CONF_CHG_CURRENT,
+	CONF_CHG_TIMER,
+	CONF_START_EN,
+	CONF_MONITOR_CTL,
+	CONF_BOOT_MINUTES,
+	CONF_RUN_SECONDS,
+	CONF_HALT_MINUTES,
 
-    CONF_COUNT
+	CONF_COUNT
 };
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *

@@ -25,14 +25,14 @@
 *                                    TYPES                                    *
 ******************************************************************************/
 enum power_state_type {
-    STATE_INIT,
-    STATE_OFF_NO_PGOOD,
-    STATE_OFF_WITH_PGOOD,
-    STATE_POWER_UP,
-    STATE_CHECK_3V,
-    STATE_ON,
-    STATE_POWER_DOWN,
-    STATE_CYCLE_POWER,
+	STATE_INIT,
+	STATE_OFF_NO_PGOOD,
+	STATE_OFF_WITH_PGOOD,
+	STATE_POWER_UP,
+	STATE_CHECK_3V,
+	STATE_ON,
+	STATE_POWER_DOWN,
+	STATE_CYCLE_POWER,
 };
 /******************************************************************************
 *                                    DATA                                     *
@@ -51,97 +51,97 @@ static void perform_poweron(void);
 ******************************************************************************/
 static bool reason_valid(uint8_t reason)
 {
-    return registers_get( REG_START_ENABLE ) & reason;
+	return registers_get( REG_START_ENABLE ) & reason;
 }
 /*****************************************************************************/
 static void state_powerup(void)
 {
-    retries = POWERUP_RETRIES;
-    power_state = STATE_POWER_UP;
+	retries = POWERUP_RETRIES;
+	power_state = STATE_POWER_UP;
 }
 /*****************************************************************************/
 static void perform_poweron(void)
 {
-    NONATOMIC_BLOCK(NONATOMIC_RESTORESTATE) {
-        board_hold_reset();
-        board_poweron();
-         _delay_ms( 250 );
-        board_release_reset();
-    }
+	NONATOMIC_BLOCK(NONATOMIC_RESTORESTATE) {
+		board_hold_reset();
+		board_poweron();
+		 _delay_ms( 250 );
+		board_release_reset();
+	}
 }
 /*****************************************************************************/
 static void state_machine(void)
 {
-    switch(power_state)
-    {
-    case STATE_INIT:
-        if ( board_3v3() ) {
-            power_state = STATE_ON;
-             sys_notify_on();
-        } else {
-            state_powerup();
-        }
-        break;
+	switch(power_state)
+	{
+	case STATE_INIT:
+		if ( board_3v3() ) {
+			power_state = STATE_ON;
+			 sys_notify_on();
+		} else {
+			state_powerup();
+		}
+		break;
 
-    case STATE_POWER_DOWN:
+	case STATE_POWER_DOWN:
 
-        board_poweroff();
+		board_poweroff();
 
-        if ( board_pgood() ) {
-            power_state = STATE_OFF_WITH_PGOOD;
-        } else {
-            power_state = STATE_OFF_NO_PGOOD;
-        }
+		if ( board_pgood() ) {
+			power_state = STATE_OFF_WITH_PGOOD;
+		} else {
+			power_state = STATE_OFF_NO_PGOOD;
+		}
 
-        registers_clear_mask(REG_START_REASON, 0xFF);
-        sys_notify_off();
-        break;
+		registers_clear_mask(REG_START_REASON, 0xFF);
+		sys_notify_off();
+		break;
 
-    case STATE_OFF_NO_PGOOD:
-        if (board_pgood()) {
-            power_state = STATE_OFF_WITH_PGOOD;
-            sys_notify_off_and_pgood();
-        }
-        break;
+	case STATE_OFF_NO_PGOOD:
+		if (board_pgood()) {
+			power_state = STATE_OFF_WITH_PGOOD;
+			sys_notify_off_and_pgood();
+		}
+		break;
 
-    case STATE_OFF_WITH_PGOOD:
-        if (!board_pgood()) {
-            power_state = STATE_OFF_NO_PGOOD;
-            sys_notify_off_and_pbad();
-        }
-        break;
+	case STATE_OFF_WITH_PGOOD:
+		if (!board_pgood()) {
+			power_state = STATE_OFF_NO_PGOOD;
+			sys_notify_off_and_pbad();
+		}
+		break;
 
-    case STATE_POWER_UP:
-        retries--;
-        power_state = STATE_CHECK_3V;
+	case STATE_POWER_UP:
+		retries--;
+		power_state = STATE_CHECK_3V;
 
-        /* note - perform_poweron enables interrupts temporarily */
-        perform_poweron();
-        break;
+		/* note - perform_poweron enables interrupts temporarily */
+		perform_poweron();
+		break;
 
-    case STATE_CHECK_3V:
-        if(board_3v3()) {
-            power_state = STATE_ON;
-            sys_notify_on();
-        } else if(retries != 0) {
-            power_state = STATE_POWER_UP;
-        } else {
-            power_state = STATE_POWER_DOWN;
-        }
-        break;
+	case STATE_CHECK_3V:
+		if(board_3v3()) {
+			power_state = STATE_ON;
+			sys_notify_on();
+		} else if(retries != 0) {
+			power_state = STATE_POWER_UP;
+		} else {
+			power_state = STATE_POWER_DOWN;
+		}
+		break;
 
-    case STATE_ON:
-        if (board_3v3() == 0) {
-            power_state = STATE_POWER_DOWN;
-        }
-        break;
+	case STATE_ON:
+		if (board_3v3() == 0) {
+			power_state = STATE_POWER_DOWN;
+		}
+		break;
 
-    case STATE_CYCLE_POWER:
-        board_poweroff();
-        sys_notify_reboot();
-        state_powerup();
-        break;
-    }
+	case STATE_CYCLE_POWER:
+		board_poweroff();
+		sys_notify_reboot();
+		state_powerup();
+		break;
+	}
 }
 /*****************************************************************************/
 /**
@@ -152,8 +152,8 @@ static void state_machine(void)
 **/
 bool board_power_state_is_off(void)
 {
-    enum power_state_type state = power_state;
-    return (state == STATE_OFF_NO_PGOOD) || (state == STATE_OFF_WITH_PGOOD);
+	enum power_state_type state = power_state;
+	return (state == STATE_OFF_NO_PGOOD) || (state == STATE_OFF_WITH_PGOOD);
 }
 /*****************************************************************************/
 /**
@@ -164,7 +164,7 @@ bool board_power_state_is_off(void)
 **/
 bool board_power_state_is_on(void)
 {
-    return power_state == STATE_ON;
+	return power_state == STATE_ON;
 }
 /*****************************************************************************/
 /**
@@ -175,15 +175,15 @@ bool board_power_state_is_on(void)
 **/
 bool board_power_state_pgood(void)
 {
-    enum power_state_type state;
+	enum power_state_type state;
 
-    if(!board_pgood()) {
-        return false;
-    }
+	if(!board_pgood()) {
+		return false;
+	}
 
-    state = power_state;
+	state = power_state;
 
-    return (state == STATE_ON) || (state == STATE_OFF_WITH_PGOOD);
+	return (state == STATE_ON) || (state == STATE_OFF_WITH_PGOOD);
 }
 /*****************************************************************************/
 /**
@@ -191,12 +191,12 @@ bool board_power_state_pgood(void)
 **/
 void board_power_req_cycle(uint8_t reason)
 {
-    if(!reason_valid(reason)) {
-        return;
-    }
+	if(!reason_valid(reason)) {
+		return;
+	}
 
-    power_state = STATE_CYCLE_POWER;
-    registers_set(REG_START_REASON, reason);
+	power_state = STATE_CYCLE_POWER;
+	registers_set(REG_START_REASON, reason);
 }
 /*****************************************************************************/
 /**
@@ -204,11 +204,11 @@ void board_power_req_cycle(uint8_t reason)
 **/
 void board_power_req_powerdown(void)
 {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        if ( power_state == STATE_ON ) {
-            power_state = STATE_POWER_DOWN;
-        }
-    }
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		if ( power_state == STATE_ON ) {
+			power_state = STATE_POWER_DOWN;
+		}
+	}
 }
 /*****************************************************************************/
 /**
@@ -218,12 +218,12 @@ void board_power_req_powerdown(void)
 **/
 void board_power_event(uint8_t reason)
 {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        if(board_power_state_is_off() && reason_valid(reason)) {
-            registers_set(REG_START_REASON, reason);
-            state_powerup();
-        }
-    }
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		if(board_power_state_is_off() && reason_valid(reason)) {
+			registers_set(REG_START_REASON, reason);
+			state_powerup();
+		}
+	}
 }
 /*****************************************************************************/
 /**
@@ -231,7 +231,7 @@ void board_power_event(uint8_t reason)
 **/
 void board_power_sm(void)
 {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        state_machine();
-    }
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		state_machine();
+	}
 }

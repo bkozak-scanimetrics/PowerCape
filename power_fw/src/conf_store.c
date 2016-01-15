@@ -41,17 +41,18 @@ static void load_defaults(void);
 ******************************************************************************/
 static void load_rom(void)
 {
-    eeprom_read_block(conf_buffer, CONF_STORE_EEPROM_START, CONF_COUNT + 1);
+	eeprom_read_block(conf_buffer, CONF_STORE_EEPROM_START,
+			  CONF_COUNT + 1);
 }
 /*****************************************************************************/
 static bool checksum_ok(void)
 {
-    return crc8(conf_buffer, CONF_COUNT) == conf_buffer[CONF_COUNT];
+	return crc8(conf_buffer, CONF_COUNT) == conf_buffer[CONF_COUNT];
 }
 /*****************************************************************************/
 static void load_defaults(void)
 {
-    memcpy(conf_buffer, defaults, CONF_COUNT);
+	memcpy(conf_buffer, defaults, CONF_COUNT);
 }
 /*****************************************************************************/
 /**
@@ -59,8 +60,8 @@ static void load_defaults(void)
 **/
 void store_config(size_t param, uint8_t value)
 {
-    conf_dirty = true;
-    conf_buffer[param] = value;
+	conf_dirty = true;
+	conf_buffer[param] = value;
 }
 /*****************************************************************************/
 /**
@@ -68,7 +69,7 @@ void store_config(size_t param, uint8_t value)
 **/
 uint8_t read_config(size_t param)
 {
-    return conf_buffer[param];
+	return conf_buffer[param];
 }
 /*****************************************************************************/
 /**
@@ -79,22 +80,22 @@ uint8_t read_config(size_t param)
 **/
 void conf_store_task(void)
 {
-    uint8_t *store_addr    = CONF_STORE_EEPROM_START;
-    uint8_t *checksum_addr = store_addr + CONF_COUNT;
+	uint8_t *store_addr    = CONF_STORE_EEPROM_START;
+	uint8_t *checksum_addr = store_addr + CONF_COUNT;
 
-    bool dirty;
+	bool dirty;
 
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        dirty = conf_dirty;
-        conf_dirty = false;
-    }
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		dirty = conf_dirty;
+		conf_dirty = false;
+	}
 
-    if(!dirty) {
-        return;
-    }
+	if(!dirty) {
+		return;
+	}
 
-    eeprom_write_block(conf_buffer, store_addr, CONF_COUNT);
-    eeprom_write_byte(checksum_addr, crc8(conf_buffer, CONF_COUNT));
+	eeprom_write_block(conf_buffer, store_addr, CONF_COUNT);
+	eeprom_write_byte(checksum_addr, crc8(conf_buffer, CONF_COUNT));
 }
 /*****************************************************************************/
 /**
@@ -102,21 +103,21 @@ void conf_store_task(void)
 **/
 void init_conf_store(void)
 {
-    bool conf_ok = false;
+	bool conf_ok = false;
 
-    for(int i = 0; i < LOAD_RETRIES; i++) {
-        load_rom();
-        conf_ok = checksum_ok();
-        if(conf_ok) {
-            break;
-        }
-         _delay_ms(RETRY_DELAY_MS);
-    }
+	for(int i = 0; i < LOAD_RETRIES; i++) {
+		load_rom();
+		conf_ok = checksum_ok();
+		if(conf_ok) {
+			break;
+		}
+		 _delay_ms(RETRY_DELAY_MS);
+	}
 
-    if(!conf_ok) {
-        load_defaults();
-        conf_dirty = true;
-        conf_store_task();
-    }
+	if(!conf_ok) {
+		load_defaults();
+		conf_dirty = true;
+		conf_store_task();
+	}
 }
 /*****************************************************************************/

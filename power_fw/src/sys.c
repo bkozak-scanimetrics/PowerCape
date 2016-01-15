@@ -25,10 +25,10 @@
 **/
 void sys_notify_off(void)
 {
-    twi_slave_stop();
-    board_enable_interrupt(registers_get(REG_START_ENABLE));
+	twi_slave_stop();
+	board_enable_interrupt(registers_get(REG_START_ENABLE));
 
-    moinitor_poweroff();
+	moinitor_poweroff();
 }
 /*****************************************************************************/
 /**
@@ -38,10 +38,10 @@ void sys_notify_off(void)
 **/
 void sys_notify_on(void)
 {
-    twi_slave_init();
-    board_disable_interrupt(START_ALL);
+	twi_slave_init();
+	board_disable_interrupt(START_ALL);
 
-    mointor_poweron();
+	mointor_poweron();
 }
 /*****************************************************************************/
 /**
@@ -62,7 +62,7 @@ void sys_notify_reboot(void)
 **/
 void sys_notify_off_and_pgood(void)
 {
-    board_power_event(START_PWRGOOD);
+	board_power_event(START_PWRGOOD);
 }
 /*****************************************************************************/
 /**
