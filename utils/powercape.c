@@ -272,14 +272,6 @@ int cape_show_cape_info( void )
 		revision,
 		stepping);
         }
-
-        if ( register_read(REG_WDT_RESET, &c1) == 0 &&
-             register_read(REG_WDT_POWER, &c2) == 0 &&
-             register_read(REG_WDT_STOP, &c3) == 0 &&
-             register_read(REG_WDT_START, &c4) == 0 )
-        {
-            printf("Watchdog: power cycle @ %d, power down @ %d, start within @ %d, reset for %d\n", c2, c3, c4, c1);
-        }
     }
 
     if ( capability >= CAPABILITY_RTC )

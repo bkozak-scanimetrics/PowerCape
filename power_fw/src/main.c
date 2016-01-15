@@ -14,7 +14,6 @@
 #include "twi_slave.h"
 #include "bb_i2c.h"
 #include "board_power.h"
-#include "board_watchdog.h"
 #include "sys_time.h"
 #include "monitor.h"
 #include "conf_store.h"
@@ -93,10 +92,7 @@ int main( void )
             monitor_state_machine();
             conf_store_task();
 
-            if (board_power_state_is_on())
-            {
-                board_watchdog_check();
-            } else if (board_power_state_is_off()) {
+            if (board_power_state_is_off()) {
             	while ( ASSR & ( 1 << TCR2AUB ) ) { /* wait */ }
                 sleep_enable();
                 sleep_cpu();

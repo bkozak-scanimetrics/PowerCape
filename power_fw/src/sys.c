@@ -14,7 +14,6 @@
 #include "twi_slave.h"
 #include "monitor.h"
 #include "sys_time.h"
-#include "board_watchdog.h"
 #include "board_power.h"
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
@@ -41,7 +40,6 @@ void sys_notify_on(void)
 {
     twi_slave_init();
     board_disable_interrupt(START_ALL);
-    board_watchdog_boot_setup();
 
     mointor_poweron();
 }

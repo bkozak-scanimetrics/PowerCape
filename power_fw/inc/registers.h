@@ -26,18 +26,14 @@ enum registers_type {
     REG_BOARD_TYPE,             // 15   Board type (ie: BeagleBone, Pi, etc.)
     REG_BOARD_REV,              // 16   Hardware revision (if known) in ASCII (ie: 'A')
     REG_BOARD_STEP,             // 17   Hardware stepping (if known) in ASCII (ie: '1')
-    REG_WDT_RESET,              // 18   Reset watchdog countdown register (seconds, 0 to disable)
-    REG_WDT_POWER,              // 19   Power-cycle watchdog countdown register (seconds, 0 to disable)
-    REG_WDT_STOP,               // 20   Power-off countdown (single-shot seconds, 0 to disable)
-    REG_WDT_START,              // 21   Start-up activity watchdog countdown (seconds, 0 to disable)
-    REG_I2C_ADDRESS,            // 22   Slave address to use on I2C interface
-    REG_I2C_ICHARGE,            // 23   Charge current (0-3)/3 amp
-    REG_I2C_TCHARGE,            // 24   Charger timer in hours (3-10)
-    REG_MONITOR_CTL,            // 25
-    REG_MONITOR_CMD,            // 26
-    REG_MONITOR_BOOT_MINUTES,   // 27
-    REG_MONITOR_RUN_SECONDS,    // 28
-    REG_MONITOR_HALT_MINUTES,   // 29
+    REG_I2C_ADDRESS,            // 18   Slave address to use on I2C interface
+    REG_I2C_ICHARGE,            // 19   Charge current (0-3)/3 amp
+    REG_I2C_TCHARGE,            // 20   Charger timer in hours (3-10)
+    REG_MONITOR_CTL,            // 21
+    REG_MONITOR_CMD,            // 22
+    REG_MONITOR_BOOT_MINUTES,   // 23
+    REG_MONITOR_RUN_SECONDS,    // 24
+    REG_MONITOR_HALT_MINUTES,   // 25
 
     NUM_REGISTERS
 };

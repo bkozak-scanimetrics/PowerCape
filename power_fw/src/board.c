@@ -13,7 +13,6 @@
 #include "bb_i2c.h"
 #include "board_power.h"
 #include "twi_slave.h"
-#include "board_watchdog.h"
 #include "sys_time.h"
 /******************************************************************************
 *                                    DATA                                     *
