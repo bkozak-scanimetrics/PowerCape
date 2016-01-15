@@ -16,6 +16,7 @@
 ******************************************************************************/
 bool board_power_state_is_on(void);
 bool board_power_state_is_off(void);
+bool board_power_state_pgood(void);
 void board_power_req_cycle(uint8_t reason);
 void board_power_req_powerdown(void);
 void board_power_down(void);

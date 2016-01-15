@@ -78,10 +78,11 @@ enum registers_type {
 
 // MONITOR_CTL bits
 #define MONITOR_POWER_ALWAYS    0x01
-#define MONITOR_BOOT            0x02
-#define MONITOR_RUN             0x04
-#define MONITOR_HALT            0x08
-#define MONITOR_TIMED_RESTORE   0x10
+#define MONITOR_POWER_PGOOD     0x02
+#define MONITOR_BOOT            0x04
+#define MONITOR_RUN             0x08
+#define MONITOR_HALT            0x10
+#define MONITOR_TIMED_RESTORE   0x20
 
 // Monitor Command
 #define MONITOR_CMD_OK          0x00

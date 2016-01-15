@@ -168,6 +168,25 @@ bool board_power_state_is_on(void)
 }
 /*****************************************************************************/
 /**
+* \brief return true if the power manager understands that the power is good
+*
+* This should be preferred to checking pgood directly since the power manager
+* can help to filter out oscilations on the external power.
+**/
+bool board_power_state_pgood(void)
+{
+    enum power_state_type state;
+
+    if(!board_pgood()) {
+        return false;
+    }
+
+    state = power_state;
+
+    return (state == STATE_ON) || (state == STATE_OFF_WITH_PGOOD);
+}
+/*****************************************************************************/
+/**
 * \brief request that the board be power cycled
 **/
 void board_power_req_cycle(uint8_t reason)

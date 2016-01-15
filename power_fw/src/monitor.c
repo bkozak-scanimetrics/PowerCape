@@ -149,6 +149,9 @@ static bool restoration_check(void)
                activity_expired(POWER_RESTORE_SECONDS);
     } else if(registers_get(REG_MONITOR_CTL) & MONITOR_POWER_ALWAYS) {
         return activity_expired(POWER_RESTORE_SECONDS);
+    } else if(registers_get(REG_MONITOR_CTL) & MONITOR_POWER_PGOOD) {
+        return board_power_state_pgood() &&
+               activity_expired(POWER_RESTORE_SECONDS);
     } else {
         return false;
     }
