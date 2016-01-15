@@ -21,10 +21,11 @@
 #define CONF_STORE_EEPROM_START ((uint8_t*)1)
 
 #define CONF_STORE_DEFAULTS \
-    {\
+    { \
         0x00, BOARD_TYPE_BONE, (uint8_t)'A', (uint8_t)'2', TWI_SLAVE_ADDRESS, \
         0X01, 0X03, START_ALL, MONITOR_CONF_DEFAULT, \
-        MONITOR_BOOT_MINIUTES_DEFAULT, MONITOR_RUN_SECONDS_DEFAULT \
+        MONITOR_BOOT_MINUTES_DEFAULT, MONITOR_RUN_SECONDS_DEFAULT, \
+        MONITOR_HALT_MINUTES_DEFAULT \
     }
 
 #define _CONF_FUNCTIONS(n, p) \
@@ -47,6 +48,7 @@ enum conf_params {
     CONF_MONITOR_CTL,
     CONF_BOOT_MINUTES,
     CONF_RUN_SECONDS,
+    CONF_HALT_MINUTES,
 
     CONF_COUNT
 };
@@ -71,5 +73,6 @@ _CONF_FUNCTIONS(monitor_ctl, CONF_MONITOR_CTL);
 _CONF_FUNCTIONS(boot_minutes, CONF_BOOT_MINUTES);
 _CONF_FUNCTIONS(run_seconds, CONF_RUN_SECONDS);
 _CONF_FUNCTIONS(start_en, CONF_START_EN);
+_CONF_FUNCTIONS(halt_minutes, CONF_HALT_MINUTES);
 /*****************************************************************************/
 #endif /* CONF_STORE_H_ */

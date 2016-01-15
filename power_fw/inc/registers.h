@@ -34,8 +34,10 @@ enum registers_type {
     REG_I2C_ICHARGE,            // 23   Charge current (0-3)/3 amp
     REG_I2C_TCHARGE,            // 24   Charger timer in hours (3-10)
     REG_MONITOR_CTL,            // 25
-    REG_MONITOR_BOOT_MINUTES,   // 26
-    REG_MONITOR_RUN_SECONDS,    // 27
+    REG_MONITOR_CMD,            // 26
+    REG_MONITOR_BOOT_MINUTES,   // 27
+    REG_MONITOR_RUN_SECONDS,    // 28
+    REG_MONITOR_HALT_MINUTES,   // 29
 
     NUM_REGISTERS
 };
@@ -78,6 +80,13 @@ enum registers_type {
 #define MONITOR_POWER_ALWAYS    0x01
 #define MONITOR_BOOT            0x02
 #define MONITOR_RUN             0x04
+#define MONITOR_HALT            0x08
+
+// Monitor Command
+#define MONITOR_CMD_OK          0x00
+#define MONITOR_CMD_ERR         0xFF
+
+#define MONITOR_CMD_HALT        0x01
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
