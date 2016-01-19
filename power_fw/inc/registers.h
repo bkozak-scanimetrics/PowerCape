@@ -44,6 +44,7 @@ enum registers_type {
 #define STATUS_POWER_GOOD       0x01    // PG state
 #define STATUS_BUTTON           0x02    // Button state
 #define STATUS_OPTO             0x04    // Opto state
+#define STATUS_HALTING          0x08
 
 // CONTROL register bits
 #define CONTROL_CE              0x01

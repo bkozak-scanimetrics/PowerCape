@@ -51,9 +51,18 @@ static bool boot_failure(void);
 static void clear_restore_regs(void);
 static void setup_restore_time(void);
 static bool timed_restore_on(void);
+static void state_halt(void);
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
+static void state_halt(void)
+{
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		change_state(MONITOR_WAIT_HALT);
+		registers_set_mask(REG_STATUS, STATUS_HALTING);
+	}
+}
+/*****************************************************************************/
 static bool timed_restore_on(void)
 {
 	return registers_get(REG_MONITOR_CTL) & MONITOR_TIMED_RESTORE;
@@ -196,6 +205,10 @@ static bool run_failure(void)
 **/
 void moinitor_poweroff(void)
 {
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		registers_clear_mask(REG_STATUS, STATUS_HALTING);
+	}
+
 	setup_restore_time();
 	change_state(MONITOR_OFF);
 }
@@ -205,6 +218,10 @@ void moinitor_poweroff(void)
 **/
 void mointor_poweron(void)
 {
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		registers_clear_mask(REG_STATUS, STATUS_HALTING);
+	}
+
 	cmd_reset();
 
 	if(registers_get(REG_MONITOR_CTL) & MONITOR_BOOT) {
@@ -259,7 +276,7 @@ void monitor_state_machine(void)
 		break;
 	case MONITOR_ON:
 		if(halt_requested()) {
-			change_state(MONITOR_WAIT_HALT);
+			state_halt();
 		} else if(run_failure()) {
 			board_power_req_cycle(START_WDT);
 			change_state(MONITOR_CYCLE);
