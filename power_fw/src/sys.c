@@ -15,6 +15,7 @@
 #include "monitor.h"
 #include "sys_time.h"
 #include "board_power.h"
+#include "debug.h"
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
@@ -25,6 +26,8 @@
 **/
 void sys_notify_off(void)
 {
+	debug_led_code(1);
+
 	twi_slave_stop();
 	board_enable_interrupt(registers_get(REG_START_ENABLE));
 
@@ -38,6 +41,8 @@ void sys_notify_off(void)
 **/
 void sys_notify_on(void)
 {
+	debug_led_code(2);
+
 	twi_slave_init();
 	board_disable_interrupt(START_ALL);
 
@@ -53,6 +58,7 @@ void sys_notify_on(void)
 **/
 void sys_notify_reboot(void)
 {
+	debug_led_code(3);
 }
 /*****************************************************************************/
 /**

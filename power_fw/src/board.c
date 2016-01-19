@@ -44,10 +44,6 @@ void board_poweron( void )
 	__asm__ volatile( "nop\n\t" );
 	PORTD &= ~PIN_CP;
 	PORTD &= ~PIN_D;
-
-#if DEBUG
-	board_led_on( 1 );
-#endif
 }
 /*****************************************************************************/
 /**
@@ -60,9 +56,6 @@ void board_poweroff( void )
 	PORTD |= PIN_CP;
 	__asm__ volatile( "nop\n\t" );
 	PORTD &= ~PIN_CP;
-#ifdef DEBUG
-	board_led_off( 1 );
-#endif
 }
 /*****************************************************************************/
 /**

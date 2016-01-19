@@ -81,10 +81,6 @@ ISR( TIMER2_OVF_vect, ISR_BLOCK )
 	// Handle RTC
 	system_ticks++;
 
-	#if DEBUG
-	PORTB ^= PIN_LED0;
-	#endif
-
 	// Forced power-off check
 	if ( ( PIND & PIN_BUTTON ) == 0 )
 	{
