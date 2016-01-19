@@ -25,20 +25,20 @@ static inline void debug_led_code(int c)
 	switch(c)
 	{
 	case 0:
-		board_led_off(0);
-		board_led_off(1);
+		board_led1(0);
+		board_led2(0);
 		break;
 	case 1:
-		board_led_on(0);
-		board_led_off(1);
+		board_led1(1);
+		board_led2(0);
 		break;
 	case 2:
-		board_led_off(0);
-		board_led_on(1);
+		board_led1(0);
+		board_led2(1);
 		break;
 	case 3:
-		board_led_on(0);
-		board_led_on(1);
+		board_led1(1);
+		board_led2(1);
 		break;
 	default:
 		break;

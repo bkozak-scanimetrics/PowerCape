@@ -114,17 +114,8 @@ void registers_host_write( uint8_t index, uint8_t data )
 			board_ce( 0 );
 		}
 
-		if ( data & CONTROL_LED0 ) {
-			board_led_on( 0 );
-		} else {
-			board_led_off( 0 );
-		}
-
-		if ( data & CONTROL_LED1 ) {
-			board_led_on( 1 );
-		} else {
-			board_led_off( 1 );
-		}
+		board_led1(data & CONTROL_LED1);
+		board_led2(data & CONTROL_LED2);
 
 		if ( data & CONTROL_BOOTLOAD ) {
 			rebootflag = 1;

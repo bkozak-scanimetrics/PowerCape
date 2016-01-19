@@ -61,17 +61,17 @@ void board_poweroff( void )
 /**
 * \brief turn an led on
 **/
-void board_led_on( uint8_t led )
+void board_led1(int val)
 {
-	PORTB |= led == 0 ? PIN_LED0 : PIN_LED1;
+	PORTB = val ? (PORTB | PIN_LED1) : (PORTB & ~PIN_LED1);
 }
 /*****************************************************************************/
 /**
 * \brief turn an led off
 **/
-void board_led_off( uint8_t led )
+void board_led2(int val)
 {
-	PORTB &= led == 0 ? ~PIN_LED0 : ~PIN_LED1;
+	PORTB = val ? (PORTB | PIN_LED2) : (PORTB & ~PIN_LED2);
 }
 /*****************************************************************************/
 /**
@@ -247,8 +247,8 @@ void board_gpio_config( void )
 	// ones from floating
 
 	// engage all PORTB pull-ups
-	PORTB = (uint8_t)(~(PIN_LED1 | PIN_LED0 | PIN_XTAL1 | PIN_XTAL2));
-	DDRB  = ( PIN_LED1 | PIN_LED0 );
+	PORTB = (uint8_t)(~(PIN_LED1 | PIN_LED2 | PIN_XTAL1 | PIN_XTAL2));
+	DDRB  = ( PIN_LED1 | PIN_LED2 );
 
 	PORTC  = ~( PIN_SDA | PIN_SCL | PIN_CE | PIN_ISET2 | PIN_ISET3 );
 	DDRC   = PIN_ISET3;

@@ -243,8 +243,8 @@ int cape_show_cape_info( void )
 	if ( ! (c & CONTROL_CE) ) printf("Charger is not enabled!\n");
 	if ( c & CONTROL_BOOTLOAD ) printf("Bootloader is enabled!\n");
 	printf("LED 1 %s, LED 2 %s\n",
-		c & CONTROL_LED0 ? "on" : "off",
-		c & CONTROL_LED1 ? "on" : "off");
+		c & CONTROL_LED1 ? "on" : "off",
+		c & CONTROL_LED2 ? "on" : "off");
     }
 
     if ( register_read(REG_START_REASON, &c) == 0 )

@@ -8,8 +8,8 @@
 *                                   DEFINES                                   *
 ******************************************************************************/
 // Port B
-#define PIN_LED1        ( 1 << PB0 )        // PCINT0
-#define PIN_LED0        ( 1 << PB1 )        // PCINT1
+#define PIN_LED2        ( 1 << PB0 )        // PCINT0
+#define PIN_LED1        ( 1 << PB1 )        // PCINT1
 #define PIN_OPTO        ( 1 << PB2 )        // PCINT2
 #define PIN_PB3         ( 1 << PB3 )        // PCINT3
 #define PIN_PB4         ( 1 << PB4 )        // PCINT4
@@ -59,8 +59,8 @@ uint8_t board_begin_countdown( void );
 void board_poweron( void );
 void board_poweroff( void );
 
-void board_led_on( uint8_t led );
-void board_led_off( uint8_t led );
+void board_led2(int val);
+void board_led1(int val);
 
 void board_ce( uint8_t enable );
 
