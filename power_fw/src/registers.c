@@ -8,6 +8,7 @@
 #include <avr/eeprom.h>
 #include <avr/interrupt.h>
 #include <string.h>
+#include <util/atomic.h>
 
 #include "twi_slave.h"
 #include "board.h"
@@ -19,7 +20,7 @@
 ******************************************************************************/
 extern volatile uint8_t rebootflag;
 
-static uint8_t registers[ NUM_REGISTERS ];
+static volatile uint8_t registers[NUM_REGISTERS];
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
@@ -31,27 +32,44 @@ static void write_time_registers(void);
 static void read_time_registers(void)
 {
 	uint32_t seconds;
+	uint8_t *ptr;
 
-	memcpy(&seconds, registers + REG_SECONDS_0, sizeof(seconds));
+	ptr = (uint8_t*)&seconds;
+
+	for(int i = 0; i < sizeof(seconds); i++) {
+		ptr[i] = registers[REG_SECONDS_0 + i];
+	}
+
+
 	sys_time_set_time(seconds);
 }
 /*****************************************************************************/
 static void write_time_registers(void)
 {
+	uint8_t *ptr;
+
 	uint32_t seconds = sys_time_get_time();
 
-	memcpy(registers + REG_SECONDS_0, &seconds, sizeof(seconds));
+	ptr = (uint8_t*)&seconds;
+
+	for(int i = 0; i < sizeof(seconds); i++) {
+		registers[REG_SECONDS_0 + i] = ptr[i];
+	}
 }
 /*****************************************************************************/
 // Internal interface
 void registers_set_mask( uint8_t index, uint8_t mask )
 {
-	registers[ index ] |= mask;
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		registers[ index ] |= mask;
+	}
 }
 /*****************************************************************************/
 void registers_clear_mask( uint8_t index, uint8_t mask )
 {
-	registers[ index ] &= ~mask;
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		registers[ index ] &= ~mask;
+	}
 }
 /*****************************************************************************/
 uint8_t registers_get( uint8_t index )
