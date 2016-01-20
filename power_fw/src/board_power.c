@@ -62,12 +62,14 @@ static void state_powerup(void)
 /*****************************************************************************/
 static void perform_poweron(void)
 {
+	board_hold_reset();
+	board_poweron();
+
 	NONATOMIC_BLOCK(NONATOMIC_RESTORESTATE) {
-		board_hold_reset();
-		board_poweron();
 		 _delay_ms( 250 );
-		board_release_reset();
 	}
+
+	board_release_reset();
 }
 /*****************************************************************************/
 static void state_machine(void)
