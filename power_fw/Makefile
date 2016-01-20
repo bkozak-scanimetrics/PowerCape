@@ -89,8 +89,12 @@ optomized: CFLAGS += -DNDEBUG=1 -Os -flto
 optomized: LDFLAGS += -Os -flto
 optomized: $(BUILD_DIR)/$(PRG).elf lst text
 
-debug: CFLAGS += -g -DDEBUG=1 -Os
+debug: CFLAGS += -g -DDEBUG=1 -Os -flto
+debug: LDFLAGS += -Os -flto
 debug: $(BUILD_DIR)/$(PRG).elf lst text
+
+debug0: CFLAGS += -g -DDEBUG=1 -O0
+debug0: $(BUILD_DIR)/$(PRG).elf lst text
 
 asg_gen: CFLAGS += -fverbose-asm
 asm_gen: CFLAGS += -DNDEBUG=1 -Os -flto
