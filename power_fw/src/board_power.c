@@ -124,6 +124,7 @@ static void state_machine(void)
 			power_state = STATE_ON;
 			sys_notify_on();
 		} else if(retries != 0) {
+			board_poweroff();
 			power_state = STATE_POWER_UP;
 		} else {
 			power_state = STATE_POWER_DOWN;
