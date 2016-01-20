@@ -58,6 +58,7 @@ void sys_notify_on(void)
 **/
 void sys_notify_reboot(void)
 {
+	twi_slave_stop();
 	debug_led_code(3);
 }
 /*****************************************************************************/
