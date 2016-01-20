@@ -121,6 +121,9 @@ ISR( TWI_vect )
 		{
 			break;
 		}
+		case TWI_BUS_ERROR:
+			TWCR |= ( 1 << TWINT ) | (1 << TWSTO);
+			return;
 		default:
 		{
 			break;
