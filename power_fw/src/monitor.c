@@ -78,6 +78,10 @@ static void state_halt(void)
 /*****************************************************************************/
 static bool timed_restore_on(void)
 {
+	if(!restore_time) {
+		return false;
+	}
+
 	return registers_get(REG_MONITOR_CTL) & MONITOR_TIMED_RESTORE;
 }
 /*****************************************************************************/
