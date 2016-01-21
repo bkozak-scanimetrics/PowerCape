@@ -1,9 +1,3 @@
-/******************************************************************************
-* Copyright (C) 2016, Scanimetrics Inc - All Rights Reserved                  *
-*                                                                             *
-* Unauthorized copying of this file, via any medium is strictly prohibited.   *
-* Proprietary and confidential.                                               *
-******************************************************************************/
 #ifndef CRC_H_
 #define CRC_H_
 /******************************************************************************
