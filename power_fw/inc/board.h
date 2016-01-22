@@ -61,6 +61,8 @@ void board_poweroff( void );
 
 void board_led2(int val);
 void board_led1(int val);
+uint8_t board_led1_val(void);
+uint8_t board_led2_val(void);
 
 void board_ce( uint8_t enable );
 

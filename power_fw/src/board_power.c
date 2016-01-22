@@ -102,6 +102,7 @@ static void state_machine(void)
 
 	case STATE_POWER_DOWN:
 
+		debug_led_power(0);
 		board_poweroff();
 
 		if ( board_pgood() ) {
@@ -129,6 +130,7 @@ static void state_machine(void)
 		break;
 
 	case STATE_POWER_UP:
+		debug_led_power(1);
 		retries--;
 		power_state = STATE_CHECK_3V;
 
@@ -137,6 +139,8 @@ static void state_machine(void)
 		break;
 
 	case STATE_CHECK_3V:
+		debug_led_power(2);
+
 		if(board_3v3()) {
 			power_state = STATE_ON;
 			sys_notify_on();
@@ -149,6 +153,8 @@ static void state_machine(void)
 		break;
 
 	case STATE_ON:
+		debug_led_power(3);
+
 		if (board_3v3() == 0) {
 			power_state = STATE_POWER_DOWN;
 		}

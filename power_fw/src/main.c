@@ -11,6 +11,7 @@
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 #include <util/delay.h>
+
 #include "board.h"
 #include "eeprom.h"
 #include "registers.h"
@@ -20,6 +21,7 @@
 #include "sys_time.h"
 #include "monitor.h"
 #include "conf_store.h"
+#include "debug.h"
 /******************************************************************************
 *                                   DEFINES                                   *
 ******************************************************************************/
@@ -102,6 +104,8 @@ int main( void )
 		if ( last_tick != system_ticks)
 		{
 			last_tick = system_ticks;
+
+			debug_count_main();
 
 			board_power_sm();
 			monitor_state_machine();

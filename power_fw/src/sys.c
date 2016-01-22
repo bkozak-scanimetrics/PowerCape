@@ -39,7 +39,7 @@
 **/
 void sys_notify_off(void)
 {
-	debug_led_code(1);
+	debug_led_sys(1);
 
 	twi_slave_stop();
 	board_enable_interrupt(registers_get(REG_START_ENABLE));
@@ -54,7 +54,7 @@ void sys_notify_off(void)
 **/
 void sys_notify_on(void)
 {
-	debug_led_code(2);
+	debug_led_sys(2);
 
 	twi_slave_init();
 	board_disable_interrupt(START_ALL);
@@ -72,7 +72,7 @@ void sys_notify_on(void)
 void sys_notify_reboot(void)
 {
 	twi_slave_stop();
-	debug_led_code(3);
+	debug_led_sys(3);
 }
 /*****************************************************************************/
 /**

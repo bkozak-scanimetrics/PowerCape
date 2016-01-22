@@ -30,6 +30,7 @@
 #include "board_power.h"
 #include "board.h"
 #include "registers.h"
+#include "debug.h"
 /******************************************************************************
 *                                    DATA                                     *
 ******************************************************************************/
@@ -104,6 +105,8 @@ ISR( TIMER2_OVF_vect, ISR_BLOCK )
 
 	// Handle RTC
 	system_ticks++;
+
+	debug_led_sys_time(system_ticks & 0x3);
 
 	// Forced power-off check
 	if ( ( PIND & PIN_BUTTON ) == 0 )

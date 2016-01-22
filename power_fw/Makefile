@@ -43,6 +43,25 @@ else
   Q=@
 endif
 ###############################################################################
+#                                 DEBUG VARS                                  #
+###############################################################################
+ifdef DEBUG_SYS
+	DEBUG_DEFS += -DDEBUG_SYS=$(DEBUG_SYS)
+endif
+ifdef DEBUG_SYS_TIME
+	DEBUG_DEFS += -DDEBUG_SYS_TIME=$(DEBUG_SYS_TIME)
+endif
+ifdef DEBUG_MAIN
+	DEBUG_DEFS += -DDEBUG_MAIN=$(DEBUG_MAIN)
+endif
+ifdef DEBUG_POWER
+	DEBUG_DEFS += -DDEBUG_POWER=$(DEBUG_POWER)
+endif
+
+ifeq ($(DEBUG_DEFS),)
+	DEBUG_DEFS += -DDEBUG_SYS=1
+endif
+###############################################################################
 #				  BUILD DIRS				      #
 ###############################################################################
 SRC_DIRS += src
@@ -89,11 +108,11 @@ optomized: CFLAGS += -DNDEBUG=1 -Os -flto
 optomized: LDFLAGS += -Os -flto
 optomized: $(BUILD_DIR)/$(PRG).elf lst text
 
-debug: CFLAGS += -g -DDEBUG=1 -Os -flto
+debug: CFLAGS += -g -DDEBUG=1 $(DEBUG_DEFS) -Os -flto
 debug: LDFLAGS += -Os -flto
 debug: $(BUILD_DIR)/$(PRG).elf lst text
 
-debug0: CFLAGS += -g -DDEBUG=1 -O0
+debug0: CFLAGS += -g -DDEBUG=1 $(DEBUG_DEFS) -O0
 debug0: $(BUILD_DIR)/$(PRG).elf lst text
 
 asg_gen: CFLAGS += -fverbose-asm

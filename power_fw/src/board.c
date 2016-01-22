@@ -75,6 +75,22 @@ void board_led2(int val)
 }
 /*****************************************************************************/
 /**
+* \brief get value of led 1
+**/
+uint8_t board_led1_val(void)
+{
+	return !!(PORTB & PIN_LED1);
+}
+/*****************************************************************************/
+/**
+* \brief get value of led 2
+**/
+uint8_t board_led2_val(void)
+{
+	return !!(PORTB & PIN_LED2);
+}
+/*****************************************************************************/
+/**
 * \brief turn the charge enable on or off
 **/
 void board_ce( uint8_t enable )

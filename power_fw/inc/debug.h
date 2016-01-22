@@ -29,6 +29,22 @@
 #ifndef DEBUG
 #define DEBUG 0
 #endif
+
+#ifndef DEBUG_SYS
+#define DEBUG_SYS 0
+#endif
+
+#ifndef DEBUG_SYS_TIME
+#define DEBUG_SYS_TIME 0
+#endif
+
+#ifndef DEBUG_MAIN
+#define DEBUG_MAIN 0
+#endif
+
+#ifndef DEBUG_POWER
+#define DEBUG_POWER 0
+#endif
 /******************************************************************************
 *                              INLINE FUNCTIONS                               *
 ******************************************************************************/
@@ -57,8 +73,43 @@ static inline void debug_led_code(int c)
 		break;
 	}
 }
+/*****************************************************************************/
+static inline void debug_led_count(void)
+{
+	int code = (board_led2_val() << 1) | (board_led1_val() << 0);
+
+	code = (code + 1) & 0x3;
+
+	debug_led_code(code);
+}
+/*****************************************************************************/
 #else
-#define debug_led_code(c)
+#define debug_led_code(c) do{}while(0)
+#define debug_led_count() do{}while(0)
+#endif
+
+#if DEBUG_SYS
+#define debug_led_sys debug_led_code
+#else
+#define debug_led_sys(c) do{}while(0)
+#endif
+
+#if DEBUG_SYS_TIME
+#define debug_led_sys_time debug_led_code
+#else
+#define debug_led_sys_time(c) do{}while(0)
+#endif
+
+#if DEBUG_MAIN
+#define debug_count_main debug_led_count
+#else
+#define debug_count_main() do{}while(0)
+#endif
+
+#if DEBUG_POWER
+#define debug_led_power debug_led_code
+#else
+#define debug_led_power(c) do{}while(0)
 #endif
 /*****************************************************************************/
 #endif /* DEBUG_H_ */
