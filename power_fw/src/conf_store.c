@@ -26,6 +26,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <avr/eeprom.h>
+#include <avr/wdt.h>
 #include <util/delay.h>
 #include <util/atomic.h>
 
@@ -124,7 +125,9 @@ void init_conf_store(void)
 		if(conf_ok) {
 			break;
 		}
+
 		 _delay_ms(RETRY_DELAY_MS);
+		 wdt_reset();
 	}
 
 	if(!conf_ok) {
