@@ -61,7 +61,7 @@ static void check_charge_enable(void)
 int main( void )
 {
 	uint8_t oscval;
-	uint16_t last_tick = 0;
+	uint32_t last_tick = 0;
 	uint32_t system_ticks;
 
 	// Make sure DIV8 is not selected
