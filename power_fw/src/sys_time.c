@@ -45,10 +45,20 @@ void sys_time_init( void )
 {
 	PRR &= ~( 1 << PRTIM2 );    // is this necessary with async mode?
 	ASSR = ( 1 << AS2 );        // external crystal
+
+	while ( ASSR & ( 1 << TCR2BUB ) );
 	TCCR2B = 0;
+
+	while ( ASSR & ( 1 << TCR2AUB ) );
 	TCCR2A = 0;
+
+	while ( ASSR & ( 1 << TCN2UB ) );
 	TCNT2 = 0;
+
+	while ( ASSR & ( 1 << TCR2BUB ) );
 	TCCR2B = ( 1 << CS22 ) | ( 1 << CS20 );    // clk/128 (1s)
+
+
 	TIMSK2 = ( 1 << TOIE2 );
 }
 /*****************************************************************************/
