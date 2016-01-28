@@ -45,6 +45,7 @@ enum registers_type {
 #define STATUS_BUTTON           0x02    // Button state
 #define STATUS_OPTO             0x04    // Opto state
 #define STATUS_HALTING          0x08
+#define STATUS_TIME_SYNCD       0x10    // True iff time syncronized since boot
 
 // CONTROL register bits
 #define CONTROL_CE              0x01

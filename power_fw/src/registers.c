@@ -150,6 +150,7 @@ void registers_host_write( uint8_t index, uint8_t data )
 	case REG_SECONDS_3:
 		registers[index] = data;
 		read_time_registers();
+		registers[REG_STATUS] |= STATUS_TIME_SYNCD;
 		return;
 
 	case REG_EXTENDED:
