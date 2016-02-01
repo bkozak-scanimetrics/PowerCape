@@ -36,7 +36,7 @@
  * Fuse E: 0x00 (1024 words bootloader)
  * Fuse H: 0xd7 (BOD disabled)
  * Fuse L: 0xe2 (8Mhz internal RC-Osc.)
- * 
+ *
  * atmega328p:
  * Fuse E: 0x07 (BOD disabled)
  * Fuse H: 0xd2 (1024 words bootloader)
@@ -186,7 +186,7 @@ void timer2_init( uint8_t enable )
     TCCR2A = 0;
     TCNT2 = 0;
     TIFR2 = TIFR2;              // clear any flags
-    
+
     if ( enable != 0 )
     {
         TCCR2B = ( 1 << CS22 ) | ( 1 << CS21 ) | ( 1 << CS20 );    // clk/1024 (8s)
@@ -423,7 +423,7 @@ ISR( TWI_vect )
             bcnt = 0;
             LED_RT_ON();
             // intentional fall-thru
-            
+
             /* prev. SLA+R, data sent, ACK returned -> send data */
         case 0xB8:
 
@@ -518,7 +518,7 @@ int main( void )
             run_app = 0;
         }
     }
-    
+
     if ( run_app == 0 )
     {
         BOARD_INIT();
@@ -551,7 +551,7 @@ int main( void )
         while( ( cmd != CMD_BOOT_APPLICATION )&& ( TIFR2 == 0 ) );
 
         cli();
-        
+
         timer2_init( FALSE );
 
         /* Disable TWI but keep address! */
@@ -575,8 +575,8 @@ int main( void )
 
         LED_OFF();
     }
-    
+
     wdt_enable( WDTO_1S );
-    
+
     jump_to_app();
 }
