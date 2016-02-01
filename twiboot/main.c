@@ -234,22 +234,20 @@ static void write_flash_page( void )
 }
 
 #if (EEPROM_SUPPORT)
-static uint8_t read_eeprom_byte( void )
+static uint8_t read_eeprom_byte(uint8_t eep_addr)
 {
-    EEARL = addr;
-    EEARH = ( addr >> 8 );
+    while(EECR & (1 << EEPE));
+    EEAR = eep_addr;
     EECR |= ( 1 << EERE );
-    addr++;
     return EEDR;
 }
 
 
-static void write_eeprom_byte( uint8_t val )
+static void write_eeprom_byte(uint8_t eep_addr, uint8_t val )
 {
-    EEARL = addr;
-    EEARH = ( addr >> 8 );
+    while(EECR & (1 << EEPE));
+    EEAR = eep_addr;
     EEDR = val;
-    addr++;
 #if defined (__AVR_ATmega8__)
     EECR |= ( 1 << EEMWE );
     EECR |= ( 1 << EEWE );
@@ -257,7 +255,6 @@ static void write_eeprom_byte( uint8_t val )
     EECR |= ( 1 << EEMPE );
     EECR |= ( 1 << EEPE );
 #endif
-    eeprom_busy_wait();
 }
 #endif /* EEPROM_SUPPORT */
 
@@ -409,7 +406,7 @@ ISR( TWI_vect )
                 write_flash_page();
 #if (EEPROM_SUPPORT)
             if (flash_it == 2)
-                write_eeprom_byte(data);
+                write_eeprom_byte(addr++, data);
 #endif
             break;
 
@@ -444,7 +441,7 @@ ISR( TWI_vect )
                     break;
 #if (EEPROM_SUPPORT)
                 case CMD_READ_EEPROM:
-                    data = read_eeprom_byte();
+                    data = read_eeprom_byte(addr++);
                     break;
 #endif
                 default:
