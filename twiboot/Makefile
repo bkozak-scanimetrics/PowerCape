@@ -25,7 +25,7 @@ HFUSE=0xd2
 EFUSE=0x07
 endif
 
-DEFS           = -DAPP_END=$(BOOTLOADER_START)
+DEFS           = -DAPP_END=$(BOOTLOADER_START) -DF_CPU=8000000
 LIBS           =
 
 # Override is only needed by avr-lib build system.
