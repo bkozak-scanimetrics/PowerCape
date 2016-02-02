@@ -144,22 +144,20 @@ int register32_write( unsigned char reg, unsigned int data )
 int cape_enter_bootloader( void )
 {
     unsigned char b;
-    int rc = 2;
 
-    if ( register_write( REG_CONTROL, CONTROL_BOOTLOAD ) == 0 )
-    {
-        if ( register_read( REG_CONTROL, &b ) == 0 )
-        {
-            fprintf( stderr, "Unable to switch to cape bootloader\n" );
-            rc = 3;
-        }
-        else
-        {
-            rc = 0;
-        }
+    if ( register_read( REG_CONTROL, &b )) {
+    	    fprintf( stderr, "Unable to switch to cape bootloader\n" );
+    	    return 3;
     }
 
-    return rc;
+    b |= CONTROL_BOOTLOAD;
+
+    if (register_write( REG_CONTROL, b ))
+    {
+    	    return 2;
+    }
+
+    return 0;
 }
 
 
