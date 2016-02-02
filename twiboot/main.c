@@ -483,19 +483,35 @@ static void ( *jump_to_app )( void ) __attribute__( ( noreturn ) ) = 0x0000;
 
 /*
  * For newer devices (mega88) the watchdog timer remains active even after a
- * system reset. So disable it as soon as possible.
- * automagically called on startup
+ * system reset. So reset and re-configure as soon as possible. While we might
+ * prefer to simply disable it, this requires clearing reset reason bits
+ * in MCUSR which the application might want to see.
  */
 #if defined (__AVR_ATmega88P__) || defined (__AVR_ATmega168P__) || defined (__AVR_ATmega328P__)
-void disable_wdt_timer( void ) __attribute__( ( naked, section( ".init3" ) ) );
-void disable_wdt_timer( void )
+void init_wdt( void ) __attribute__( ( naked, section( ".init3" ) ) );
+void init_wdt( void )
 {
+    wdt_reset();
+    wdt_enable(WDTO_2S);
     mcusr = MCUSR;
-    MCUSR = 0;
+}
+
+static void disable_wdt(void)
+{
+    MCUSR &= ~(1 << WDRF);
     WDTCSR = ( 1 << WDCE ) | ( 1 << WDE );
     WDTCSR = ( 0 << WDE );
 }
 #endif
+
+static int boot_flag(void)
+{
+    #if (EEPROM_SUPPORT)
+    return read_eeprom_byte(0) & 0x01;
+    #else
+    return 1;
+    #endif
+}
 
 
 int main( void ) __attribute__( ( noreturn ) );
@@ -509,7 +525,7 @@ int main( void )
     }
     else
     {
-        if ( mcusr & ( 1 << WDRF ) )
+        if ((mcusr & (1 << WDRF)) && boot_flag())
         {
             timer2_init( TRUE );
             run_app = 0;
@@ -518,6 +534,8 @@ int main( void )
 
     if ( run_app == 0 )
     {
+        disable_wdt();
+
         BOARD_INIT();
         LED_INIT();
         LED_GN_ON();

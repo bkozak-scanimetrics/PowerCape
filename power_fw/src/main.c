@@ -94,6 +94,8 @@ int main( void )
 	board_set_charge_current( registers_get( REG_I2C_ICHARGE ) );
 	board_set_charge_timer( registers_get( REG_I2C_TCHARGE ) );
 
+	eeprom_clr_bootloader_flag();
+
 	// Main loop
 	while ( 1 )
 	{

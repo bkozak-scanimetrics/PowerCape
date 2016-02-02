@@ -9,5 +9,6 @@
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
 void eeprom_set_bootloader_flag( void );
+void eeprom_clr_bootloader_flag( void );
 /*****************************************************************************/
 #endif  // __EEPROM_H__
